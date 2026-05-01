@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- Configurações de Ícone para App (Android e iOS) -->
-    <!-- Atualizado para o ícone de floco de neve da imagem enviada -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ea5e9'/><path d='M50 15V85M15 50H85M24.75 24.75L75.25 75.25M24.75 75.25L75.25 24.75' stroke='white' stroke-width='8' stroke-linecap='round'/><path d='M50 25L45 35M50 25L55 35M50 75L45 65M50 75L55 65M25 50L35 45M25 50L35 55M75 50L65 45L75 50L65 55' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ea5e9'/><path d='M50 15V85M15 50H85M24.75 24.75L75.25 75.25M24.75 75.25L75.25 24.75' stroke='white' stroke-width='8' stroke-linecap='round'/><path d='M50 25L45 35M50 25L55 35M50 75L45 65M50 75L55 65M25 50L35 45M25 50L35 55M75 50L65 45L75 50L65 55' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
     
@@ -28,7 +27,6 @@
         
         :root { --primary: #0ea5e9; --secondary: #0369a1; --dark: #0f172a; }
         
-        /* Ajustes para parecer APP Nativo */
         * {
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -93,6 +91,13 @@
 
         .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
         .safe-pt { padding-top: env(safe-area-inset-top); }
+
+        /* Animação do Modal de Confirmação */
+        .confirm-modal { animation: modalShow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        @keyframes modalShow {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -106,6 +111,23 @@
             <div>
                 <h4 class="text-[10px] font-black uppercase tracking-widest text-red-600">Atenção Técnico</h4>
                 <p id="errorMessage" class="text-xs font-bold text-slate-700">Preencha o nome do cliente.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmação de Exclusão (Customizado) -->
+    <div id="confirmModal" class="modal-overlay" style="display: none; z-index: 300;">
+        <div class="bg-white confirm-modal rounded-[2.5rem] p-8 w-full max-w-xs text-center space-y-6 shadow-2xl border border-slate-100">
+            <div class="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-2">
+                <i data-lucide="trash-2" class="text-red-500 w-10 h-10"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-lg font-[800] text-slate-800 uppercase tracking-tight">Limpar Registro?</h3>
+                <p class="text-xs font-bold text-slate-400 leading-relaxed uppercase tracking-wider">Esta ação é permanente. Deseja realmente excluir este orçamento?</p>
+            </div>
+            <div class="flex flex-col gap-3">
+                <button id="btnConfirmDelete" class="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-red-200 active:scale-95 transition-all">Sim, Excluir Agora</button>
+                <button id="btnCancelDelete" class="w-full py-4 bg-slate-100 text-slate-400 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] active:scale-95 transition-all">Cancelar</button>
             </div>
         </div>
     </div>
@@ -192,11 +214,10 @@
 
     <footer class="max-w-md mx-auto w-full py-8 text-center space-y-4 safe-pb">
         <div class="space-y-1">
-            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">2026 GERENCIAMENTO TÉCNICO</p>
-            <p class="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">By : B.J.C</p>
+            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Todos Direitos Reservados</p>
+            <p class="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">Dev • B.J.C</p>
         </div>
-        <!-- Link de Suporte atualizado com frase estratégica no WhatsApp -->
-        <a href="https://wa.me/5563992092699?text=Ol%C3%A1!%20Sou%20um%20t%C3%A9cnico%20profissional%20e%20usu%C3%A1rio%20do%20OrcaPRO.%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20e%20fortalecer%20nossa%20parceria!" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] px-6 py-3 rounded-full transition-all">
+        <a href="https://wa.me/5563992092699?text=Ol%C3%A1!%20Sou%20um%20t%C3%A9cnico%20profissional%20e%20usu%C3%A1rio%20do%20GERADORPRO.%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20e%20fortalecer%20nossa%20parceria!" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] px-6 py-3 rounded-full transition-all">
             <i data-lucide="message-circle" class="w-4 h-4 fill-[#25D366] text-[#25D366]"></i>
             <span class="text-[10px] font-black uppercase tracking-widest text-[#128C7E]">Suporte Desenvolvedor</span>
         </a>
@@ -262,15 +283,27 @@
                     <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
                 </button>
             </div>
+            
+            <div class="bg-sky-50 px-6 py-4 border-b border-sky-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white">
+                        <i data-lucide="info" class="w-4 h-4"></i>
+                    </div>
+                    <p class="text-[10px] font-bold text-sky-800 leading-tight uppercase tracking-tight">
+                        Confira os dados acima. Se estiver tudo OK, clique em <span class="font-black underline">SALVAR</span> e depois envie ao WhatsApp do cliente.
+                    </p>
+                </div>
+            </div>
+
             <div class="flex-grow overflow-y-auto bg-slate-400 p-4 flex justify-center items-start">
                 <div id="pdf-preview-canvas"></div>
             </div>
             <div class="p-5 bg-white border-t space-y-3 safe-pb">
                 <button type="button" id="btnDownloadOnly" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-transform">
-                    <i data-lucide="download" class="w-4 h-4"></i> SALVAR NO CELULAR
+                    <i data-lucide="download" class="w-4 h-4"></i> 1. SALVAR NO CELULAR
                 </button>
                 <button type="button" id="btnSendWhatsapp" class="w-full py-4 bg-[#25D366] text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-lg">
-                    <i data-lucide="send" class="w-4 h-4"></i> ENVIAR WHATSAPP
+                    <i data-lucide="send" class="w-4 h-4"></i> 2. ENVIAR PARA O CLIENTE
                 </button>
             </div>
         </div>
@@ -297,6 +330,12 @@
         const errorToast = document.getElementById('errorToast');
         const errorMessage = document.getElementById('errorMessage');
         
+        // Modal de confirmação
+        const confirmModal = document.getElementById('confirmModal');
+        const btnConfirmDelete = document.getElementById('btnConfirmDelete');
+        const btnCancelDelete = document.getElementById('btnCancelDelete');
+        let idToDelete = null;
+
         let orçamentos = JSON.parse(localStorage.getItem('bjc_orcamentos')) || [];
         const modelos = ["Split Hi-Wall", "Split Inverter", "Multi Split", "Piso Teto", "Cassete", "ACJ", "Duto", "Portátil"];
         const potencias = ["9.000", "12.000", "18.000", "22.000", "24.000", "30.000", "36.000", "60.000"];
@@ -414,6 +453,7 @@
             const cliente = document.getElementById('clientName').value;
             const telefone = document.getElementById('clientPhone').value;
 
+            // Sempre gera o PDF e salva no histórico
             await generatePDFFile(true);
 
             const items = [];
@@ -426,6 +466,7 @@
                 });
             });
 
+            // Adiciona ao histórico se não for um recarregamento
             orçamentos.unshift({ 
                 id: Date.now(), 
                 cliente, 
@@ -437,9 +478,13 @@
             
             localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
 
-            if (sendToZap && telefone) {
-                const msg = encodeURIComponent(`Olá ${cliente}, estou enviando o seu orçamento profissional.`);
-                window.location.href = `whatsapp://send?phone=55${telefone.replace(/\D/g,'')}&text=${msg}`;
+            if (sendToZap) {
+                if (telefone && telefone.length >= 8) {
+                    const msg = encodeURIComponent(`Olá ${cliente}, segue em anexo o seu orçamento profissional gerado via OrcaPRO.`);
+                    window.location.href = `whatsapp://send?phone=55${telefone.replace(/\D/g,'')}&text=${msg}`;
+                } else {
+                    showError("WhatsApp do cliente não informado ou inválido.");
+                }
             }
 
             document.getElementById('previewModal').style.display = 'none';
@@ -491,10 +536,22 @@
         };
 
         window.deleteFromHistory = (id) => {
-            if(confirm("Apagar este registro?")) {
-                orçamentos = orçamentos.filter(x => x.id !== id);
+            idToDelete = id;
+            confirmModal.style.display = 'flex';
+        };
+
+        btnCancelDelete.onclick = () => {
+            confirmModal.style.display = 'none';
+            idToDelete = null;
+        };
+
+        btnConfirmDelete.onclick = () => {
+            if (idToDelete) {
+                orçamentos = orçamentos.filter(x => x.id !== idToDelete);
                 localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
                 renderHistory();
+                confirmModal.style.display = 'none';
+                idToDelete = null;
             }
         };
 
