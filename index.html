@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0ea5e9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Climatização">
+    <meta name="apple-mobile-web-app-title" content="B.J.C Clima">
     
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
@@ -387,7 +387,10 @@
         function showPreview() {
             const client = document.getElementById('clientName').value;
             const phone = document.getElementById('clientPhone').value;
-            if (!client || !phone) return alert("Preencha o Nome e WhatsApp.");
+            if (!client || !phone) {
+                alert("Preencha o Nome e WhatsApp.");
+                return;
+            }
             
             const now = new Date();
             const dateStr = now.toLocaleDateString('pt-BR');
@@ -417,7 +420,10 @@
                 }
             });
 
-            if (!hasService) return alert("Adicione serviços.");
+            if (!hasService) {
+                alert("Adicione serviços.");
+                return;
+            }
 
             document.getElementById('previewModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -451,10 +457,20 @@
 
         document.getElementById('btnPreview').onclick = showPreview;
         document.getElementById('btnConfirmGenerate').onclick = finalizePDF;
-        document.getElementById('btnBackToEdit').onclick = () => { document.getElementById('previewModal').style.display = 'none'; document.body.style.overflow = 'auto'; };
-        document.getElementById('btnOpenHistory').onclick = () => { renderHistory(); document.getElementById('historyDrawer').classList.add('open'); };
+        document.getElementById('btnBackToEdit').onclick = () => { 
+            document.getElementById('previewModal').style.display = 'none'; 
+            document.body.style.overflow = 'auto'; 
+        };
+        document.getElementById('btnOpenHistory').onclick = () => { 
+            renderHistory(); 
+            document.getElementById('historyDrawer').classList.add('open'); 
+        };
         document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
-        document.getElementById('btnCloseSuccess').onclick = () => { document.getElementById('successModal').style.display = 'none'; document.body.style.overflow = 'auto'; location.reload(); };
+        document.getElementById('btnCloseSuccess').onclick = () => { 
+            document.getElementById('successModal').style.display = 'none'; 
+            document.body.style.overflow = 'auto'; 
+            location.reload(); 
+        };
         
         document.getElementById('btnShareZap').onclick = () => {
             const client = document.getElementById('clientName').value;
@@ -480,7 +496,12 @@
             lucide.createIcons();
         }
 
-        window.onload = () => { lucide.createIcons(); updateOrder(); };
+        window.onload = () => { 
+            lucide.createIcons(); 
+            updateOrder(); 
+        };
     </script>
 </body>
 </html>
+
+
