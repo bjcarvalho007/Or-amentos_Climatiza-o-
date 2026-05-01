@@ -11,11 +11,10 @@
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
 
-    <title>Gerador de Orçamentos Pro</title>
+    <title>Gerador de Orçamentos</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
@@ -62,7 +61,9 @@
             transition: all 0.3s ease;
         }
 
-        .btn-action:active { transform: scale(0.96); }
+        .btn-action:active {
+            transform: scale(0.96);
+        }
 
         .service-card {
             animation: slideIn 0.3s ease-out;
@@ -75,53 +76,64 @@
         }
 
         .history-drawer {
-            position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%;
-            background: white; z-index: 100; transition: right 0.3s ease;
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 400px;
+            height: 100%;
+            background: white;
+            z-index: 100;
+            transition: right 0.3s ease;
             box-shadow: -10px 0 30px rgba(0,0,0,0.1);
         }
 
         .history-drawer.open { right: 0; }
 
-        .modal-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(4px); z-index: 150; padding: 1.5rem; align-items: center; justify-content: center;
-        }
-
         .status-badge {
-            font-size: 9px; padding: 2px 8px; border-radius: 99px; font-weight: 800; text-transform: uppercase;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 99px;
+            font-weight: 800;
+            text-transform: uppercase;
         }
-        .status-pendente { background: #fef9c3; color: #854d0e; }
 
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        .status-pendente { background: #fef9c3; color: #854d0e; }
+        .status-realizado { background: #dcfce7; color: #166534; }
+        .status-desistencia { background: #fee2e2; color: #991b1b; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 150;
+            padding: 1.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
         
         .service-chip {
-            transition: all 0.2s ease; cursor: pointer; border: 1.5px solid #f1f5f9;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: 1.5px solid #f1f5f9;
         }
-        .service-chip:active { transform: scale(0.95); }
-
-        #pdfPreviewContainer {
-            background: white;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-            transform: scale(0.45);
-            transform-origin: top center;
-            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+        .service-chip:active {
+            transform: scale(0.95);
         }
-
-        @media (min-width: 640px) {
-            #pdfPreviewContainer { transform: scale(0.85); }
-        }
-
-        #pdfTemplate {
-            width: 794px; 
-            min-height: 1123px; 
-            padding: 50px; 
-            background: white; 
-            color: #1e293b;
-            display: flex;
-            flex-direction: column;
+        .service-chip.selected {
+            background: #f0f9ff;
+            border-color: #0ea5e9;
+            color: #0369a1;
         }
     </style>
 </head>
@@ -129,32 +141,48 @@
 
     <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 px-4 py-3">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="w-8 h-8 hero-gradient rounded-lg flex items-center justify-center shadow-lg">
-                <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 hero-gradient rounded-lg flex items-center justify-center shadow-lg">
+                    <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
+                </div>
             </div>
-            <button id="btnOpenHistory" class="p-2 text-slate-500 hover:text-sky-600 transition-colors">
-                <i data-lucide="history" class="w-6 h-6"></i>
+            <button id="btnOpenHistory" class="relative p-2 text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-2">
+                <span class="text-[10px] font-bold uppercase hidden sm:block tracking-widest text-slate-400">Meus Históricos</span>
+                <div class="relative">
+                    <i data-lucide="history" class="w-6 h-6"></i>
+                    <span id="historyBadge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                </div>
             </button>
         </div>
     </nav>
 
-    <div class="hero-gradient w-full pt-6 pb-20 px-6 text-white text-center">
-        <h1 class="text-2xl font-[800] uppercase tracking-tight">GERADOR DE <span class="text-sky-200">ORÇAMENTO</span></h1>
-        <p class="text-[9px] font-bold uppercase tracking-[0.2em] opacity-80">Painel de Gerenciamento Técnico</p>
+    <div class="hero-gradient w-full pt-6 pb-20 px-6 text-white relative overflow-hidden text-center">
+        <div class="absolute top-[-50px] right-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="max-w-md mx-auto relative z-10">
+            <h1 class="text-2xl font-[800] tracking-tight leading-none mb-1 uppercase">GERADOR DE <span class="text-sky-200">ORÇAMENTO</span></h1>
+            <p class="text-[9px] font-bold uppercase tracking-[0.2em] opacity-80">Painel de Gerenciamento Técnico</p>
+        </div>
     </div>
 
-    <main class="max-w-md mx-auto w-full px-4 -mt-12 relative z-20 mb-10">
+    <main class="max-w-md mx-auto w-full px-4 -mt-12 relative z-20 flex-grow mb-10">
         <div class="glass-form rounded-[2.5rem] p-6 shadow-xl border border-white">
+            
             <form id="quoteForm" class="space-y-6">
-                <div class="grid grid-cols-1 gap-3">
-                    <input type="text" id="clientName" required placeholder="Nome do cliente" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center">
-                    <input type="number" id="clientPhone" required placeholder="WhatsApp (Ex: 6399...)" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center bg-sky-50/20">
+                <!-- Dados do Cliente -->
+                <div class="space-y-3">
+                    <div class="grid grid-cols-1 gap-3">
+                        <input type="text" id="clientName" required placeholder="Nome do cliente" 
+                            class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center placeholder:text-slate-300">
+                        <input type="number" id="clientPhone" required placeholder="WhatsApp (Ex: 55639...)" 
+                            class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center border-sky-100 bg-sky-50/20 placeholder:text-slate-300">
+                    </div>
                 </div>
 
+                <!-- Equipamento (LISTA COMPLETA RESTAURADA) -->
                 <div class="bg-slate-50 p-4 rounded-3xl border border-slate-100 grid grid-cols-2 gap-3">
                     <div class="space-y-1">
-                        <label class="block text-[9px] font-black text-slate-400 uppercase text-center">Modelo</label>
-                        <select id="acModel" class="w-full bg-white border border-slate-200 py-2 rounded-xl text-xs font-bold text-center outline-none">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Modelo</label>
+                        <select id="acModel" class="w-full bg-white border border-slate-200 py-2 rounded-xl text-xs font-bold text-center outline-none focus:border-sky-500">
                             <option value="Split Hi-Wall">Split Hi-Wall</option>
                             <option value="Split Inverter">Split Inverter</option>
                             <option value="ACJ (Janela)">ACJ (Janela)</option>
@@ -168,8 +196,8 @@
                         </select>
                     </div>
                     <div class="space-y-1">
-                        <label class="block text-[9px] font-black text-slate-400 uppercase text-center">Potência</label>
-                        <select id="acPower" class="w-full bg-white border border-slate-200 py-2 rounded-xl text-xs font-bold text-center outline-none">
+                        <label class="block text-[9px] font-black text-slate-400 uppercase tracking-widest text-center">Potência</label>
+                        <select id="acPower" class="w-full bg-white border border-slate-200 py-2 rounded-xl text-xs font-bold text-center outline-none focus:border-sky-500">
                             <option value="7.000">7.000 BTUs</option>
                             <option value="7.500">7.500 BTUs</option>
                             <option value="9.000">9.000 BTUs</option>
@@ -190,315 +218,318 @@
                     </div>
                 </div>
 
+                <!-- Secção de Serviços -->
                 <div class="space-y-4">
                     <div class="flex justify-between items-center px-1">
-                        <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Atalhos de Serviços</h3>
-                        <button type="button" id="addService" class="text-sky-600 text-[10px] font-black uppercase">+ Customizado</button>
+                        <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Serviços a Efetuar</h3>
+                        <button type="button" id="addService" class="flex items-center gap-2 bg-sky-50 text-sky-600 px-3 py-1.5 rounded-full text-[10px] font-black uppercase hover:bg-sky-100 transition-all">
+                            <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> PERSONALIZADO
+                        </button>
                     </div>
                     
-                    <div id="serviceChips" class="flex flex-wrap gap-2">
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Limpeza e Higienização" data-price="150">LIMPEZA</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Instalação Completa" data-price="450">INSTALAÇÃO</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Carga de Gás" data-price="250">CARGA GÁS</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Desinstalação de Aparelho" data-price="100">DESINSTALAÇÃO</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Conserto e Reparo Técnico" data-price="180">CONSERTO</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Troca de Capacitor" data-price="120">CAPACITOR</div>
-                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 border border-slate-100 hover:border-sky-300" data-service="Manutenção Preventiva" data-price="130">PREVENTIVA</div>
+                    <div id="serviceChips" class="flex flex-wrap gap-2 mb-4">
+                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 flex items-center gap-2" data-service="Limpeza e Higienização" data-price="150">
+                            <i data-lucide="wind" class="w-3 h-3 text-sky-500"></i> LIMPEZA
+                        </div>
+                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 flex items-center gap-2" data-service="Instalação Completa" data-price="450">
+                            <i data-lucide="settings" class="w-3 h-3 text-sky-500"></i> INSTALAÇÃO
+                        </div>
+                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 flex items-center gap-2" data-service="Carga de Gás" data-price="250">
+                            <i data-lucide="cylinder" class="w-3 h-3 text-sky-500"></i> GÁS
+                        </div>
+                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 flex items-center gap-2" data-service="Visita Técnica" data-price="80">
+                            <i data-lucide="map-pin" class="w-3 h-3 text-sky-500"></i> VISITA
+                        </div>
+                        <div class="service-chip bg-white px-3 py-2 rounded-xl text-[10px] font-bold text-slate-600 flex items-center gap-2" data-service="Troca de Capacitor" data-price="120">
+                            <i data-lucide="zap" class="w-3 h-3 text-sky-500"></i> CAPACITOR
+                        </div>
                     </div>
                     
                     <div id="servicesContainer" class="space-y-3"></div>
                 </div>
 
+                <!-- Resumo e Total -->
                 <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-2xl relative overflow-hidden border border-slate-800">
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-sky-500/10 rounded-full blur-2xl"></div>
+                    
                     <div class="flex justify-between items-start mb-4">
                         <div>
-                            <p class="text-[8px] font-black uppercase tracking-[0.3em] text-sky-400">Resumo do Valor</p>
+                            <p class="text-[8px] font-black uppercase tracking-[0.3em] text-sky-400">Resumo Técnico</p>
+                            <h4 id="displayEquipment" class="text-xs font-bold text-slate-300">---</h4>
+                        </div>
+                        <i data-lucide="calculator" class="w-5 h-5 text-slate-700"></i>
+                    </div>
+
+                    <div id="liveList" class="space-y-2 mb-6 max-h-40 overflow-y-auto pr-2 custom-scrollbar"></div>
+                    
+                    <div class="flex justify-between items-center pt-4 border-t border-white/5">
+                        <div class="space-y-0.5">
+                            <p class="text-[8px] font-black uppercase tracking-widest text-slate-500">Valor Total</p>
                             <div class="text-3xl font-black text-white flex items-center gap-1">
-                                <span class="text-sky-500 text-lg">R$</span><span id="displayTotal">0,00</span>
+                                <span class="text-sky-500 text-lg">R$</span>
+                                <span id="displayTotal">0,00</span>
                             </div>
                         </div>
-                        <i data-lucide="calculator" class="w-6 h-6 text-slate-700"></i>
                     </div>
                 </div>
 
-                <div class="pt-2">
-                    <button type="button" id="btnPreview" class="btn-action w-full py-4 rounded-[1.5rem] text-white font-black text-xs flex items-center justify-center gap-3 tracking-[0.2em]">
-                        REVISAR ORÇAMENTO
-                        <i data-lucide="eye" class="w-5 h-5"></i>
+                <div class="grid grid-cols-1 gap-3 pt-2">
+                    <button type="button" id="btnPreview" class="w-full py-3.5 rounded-2xl border-2 border-slate-100 text-slate-400 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Pré-Visualizar
+                    </button>
+                    <button type="submit" class="btn-action w-full py-4 rounded-[1.5rem] text-white font-black text-xs flex items-center justify-center gap-3 tracking-[0.2em] shadow-lg shadow-sky-200">
+                        ENVIAR PARA WHATSAPP
+                        <i data-lucide="arrow-right-circle" class="w-5 h-5"></i>
                     </button>
                 </div>
             </form>
-
-            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
-                <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">2026 Gerenciamento Técnico</p>
-                <p class="text-[10px] font-bold text-slate-600 mb-4">Desenvolvido por <span class="text-sky-600">Dev B.J.C</span></p>
-            </div>
         </div>
     </main>
 
-    <!-- Modal de Preview -->
-    <div id="previewModal" class="modal-overlay overflow-y-auto pt-10 flex-col">
-        <div class="flex justify-between w-full max-w-md px-6 mb-4 z-50">
-            <button id="btnBackToEdit" class="flex items-center gap-2 text-white font-bold text-[10px] uppercase"><i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar</button>
-            <span class="text-white/50 text-[10px] font-black uppercase tracking-widest">Visualização</span>
-        </div>
-        
-        <div id="pdfPreviewContainer">
-            <div id="pdfTemplate">
-                <!-- Cabeçalho Único: SOLUÇÕES EM AR-CONDICIONADO -->
-                <div style="border-bottom: 4px solid #0ea5e9; padding-bottom: 25px; margin-bottom: 40px; text-align: center;">
-                    <h1 style="font-size: 42px; font-weight: 800; color: #0ea5e9; margin: 0; line-height: 1.1; letter-spacing: -1px; text-transform: uppercase;">SOLUÇÕES EM AR-CONDICIONADO</h1>
-                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
-                        <p style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; background: #f1f5f9; padding: 4px 12px; border-radius: 6px;">ORÇAMENTO Nº <span id="pdfId">000</span></p>
-                        <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; background: #f1f5f9; padding: 4px 12px; border-radius: 6px;" id="pdfDate"></p>
-                    </div>
-                </div>
-
-                <!-- Info Cliente -->
-                <div style="margin-bottom: 30px; background: #f8fafc; padding: 25px; border-radius: 20px; border: 1.5px solid #e2e8f0;">
-                    <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px;">IDENTIFICAÇÃO DO CLIENTE</p>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <p style="font-size: 22px; font-weight: 800; margin: 0; color: #0f172a;" id="pdfClientName">-</p>
-                        <p style="font-size: 16px; color: #0ea5e9; margin: 0; font-weight: 700;" id="pdfClientPhone">-</p>
-                    </div>
-                </div>
-
-                <!-- Info Equipamento -->
-                <div style="margin-bottom: 35px;">
-                    <div style="border: 2px solid #0ea5e9; padding: 20px; border-radius: 20px; background: #fff; display: flex; align-items: center; gap: 20px;">
-                        <div style="background: #0ea5e9; color: white; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
-                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.97-4 9-9 9s-9-4.03-9-9 4-9 9-9 9 4.03 9 9z"></path><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
-                        </div>
-                        <div>
-                            <span style="font-size: 10px; font-weight: 800; color: #94a3b8; display: block; text-transform: uppercase; letter-spacing: 1px;">EQUIPAMENTO / ESCOPO</span>
-                            <strong id="pdfEquip" style="font-size: 18px; color: #0f172a; font-weight: 800; text-transform: uppercase;">-</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tabela de Serviços -->
-                <div style="flex-grow: 1;">
-                    <table style="width: 100%; border-collapse: separate; border-spacing: 0; border: 1.5px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
-                        <thead>
-                            <tr style="background: #0f172a; color: white;">
-                                <th style="padding: 18px 25px; text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Descrição Detalhada do Serviço</th>
-                                <th style="padding: 18px 25px; text-align: right; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Subtotal</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pdfTableBody"></tbody>
-                    </table>
-                </div>
-
-                <!-- Total -->
-                <div style="display: flex; justify-content: flex-end; margin-top: 40px; margin-bottom: 50px;">
-                    <div style="background: #0ea5e9; color: white; padding: 30px 45px; border-radius: 25px; text-align: right; min-width: 280px; box-shadow: 0 15px 30px -10px rgba(14, 165, 233, 0.4);">
-                        <span style="font-size: 11px; font-weight: 800; color: #fff; display: block; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2.5px; opacity: 0.9;">Valor Total Final</span>
-                        <strong style="font-size: 38px; color: #fff; font-weight: 800; line-height: 1;">R$ <span id="pdfTotal">0,00</span></strong>
-                    </div>
-                </div>
-
-                <!-- Rodapé -->
-                <div style="font-size: 12px; color: #64748b; border-top: 2px solid #f1f5f9; padding-top: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div style="line-height: 1.8;">
-                        <p style="margin: 0; font-weight: 700; color: #1e293b;">• Validade da Proposta: 07 dias corridos</p>
-                        <p style="margin: 0; font-weight: 700; color: #1e293b;">• Garantia Técnica: 90 dias (Mão de Obra e Peças instaladas)</p>
-                        <p style="margin: 10px 0 0 0; font-weight: 800; color: #0ea5e9; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">ORÇAMENTO TÉCNICO AUTENTICADO</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p id="footerTime" style="margin: 0; font-weight: 700; color: #94a3b8; font-size: 10px;"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="w-full max-w-md px-6 mt-[-60px] pb-10 z-50">
-            <button id="btnConfirmGenerate" class="w-full py-4 bg-white text-sky-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
-                GERAR E BAIXAR PDF <i data-lucide="download" class="w-5 h-5"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Histórico -->
+    <!-- Drawer de Histórico -->
     <div id="historyDrawer" class="history-drawer flex flex-col">
         <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-            <h2 class="font-black text-slate-800 uppercase text-sm">Histórico</h2>
-            <button id="btnCloseHistory"><i data-lucide="x" class="w-5 h-5 text-slate-400"></i></button>
+            <div>
+                <h2 class="font-black text-slate-800 uppercase tracking-tight">Meus Históricos</h2>
+                <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest">Registros de Orçamentos</p>
+            </div>
+            <button id="btnCloseHistory" class="p-2 bg-white rounded-full shadow-sm text-slate-400 hover:text-slate-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
         </div>
-        <div id="historyList" class="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar"></div>
+        <div id="historyList" class="flex-grow overflow-y-auto p-4 space-y-3"></div>
+        <div class="p-4 border-t bg-white">
+            <button id="btnClearHistory" class="w-full py-3 text-[10px] font-black text-red-400 uppercase tracking-widest">Limpar Histórico</button>
+        </div>
     </div>
 
-    <!-- Modal Sucesso -->
-    <div id="successModal" class="modal-overlay">
-        <div class="bg-white rounded-[2rem] w-full max-w-sm p-8 text-center shadow-2xl mx-4">
-            <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="check-circle" class="w-8 h-8"></i>
+    <!-- Preview Modal -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="bg-white rounded-[2rem] w-full max-w-sm overflow-hidden shadow-2xl mx-4">
+            <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                <span class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Confirmação</span>
+                <button type="button" id="closePreview"><i data-lucide="x" class="w-5 h-5 text-slate-300"></i></button>
             </div>
-            <h2 class="text-lg font-black text-slate-800 mb-2 uppercase">ORÇAMENTO GERADO!</h2>
-            <p class="text-xs text-slate-500 mb-6">O arquivo PDF já está no seu dispositivo.</p>
-            <button id="btnShareZap" class="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 mb-3">
-                NOTIFICAR CLIENTE (WHATSAPP) <i data-lucide="send" class="w-4 h-4"></i>
-            </button>
-            <button id="btnCloseSuccess" class="text-slate-400 text-[9px] font-bold uppercase p-2">FECHAR</button>
+            <div class="p-6">
+                <div id="previewContent" class="bg-slate-50 p-4 rounded-2xl text-[13px] whitespace-pre-wrap text-slate-700 leading-relaxed max-h-80 overflow-y-auto border border-slate-100"></div>
+            </div>
+            <div class="p-6 pt-0">
+                <button type="button" id="confirmSend" class="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-green-100 flex items-center justify-center gap-2">
+                    GERAR E ENVIAR <i data-lucide="check" class="w-4 h-4"></i>
+                </button>
+            </div>
         </div>
     </div>
+
+    <footer class="py-10 text-center px-6 flex flex-col items-center">
+        <p class="text-slate-400 text-[9px] uppercase tracking-[0.2em] mb-4 font-medium">© 2026 Gerenciamento Técnico</p>
+        <div class="flex flex-col items-center gap-4">
+            <div class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full">
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Desenvolvido por</span>
+                <span class="text-[10px] font-black text-slate-800 tracking-tighter">Dev B.J.C</span>
+            </div>
+            <a href="https://wa.me/5563992092699?text=Quero+um+aplicativo+como+o+de+orçamentos" target="_blank" class="text-[9px] font-black text-sky-600 uppercase tracking-[0.2em] flex items-center gap-2 border-b border-sky-100 pb-1">
+                Solicitar App Próprio <i data-lucide="external-link" class="w-3 h-3"></i>
+            </a>
+        </div>
+    </footer>
+
+    <datalist id="servicosSugestoes">
+        <option value="Limpeza e Higienização Completa">
+        <option value="Limpeza Preventiva (Filtros e Painel)">
+        <option value="Higienização de Evaporadora">
+        <option value="Limpeza de Condensadora (Unidade Externa)">
+        <option value="Limpeza de Dreno e Bandeja">
+        <option value="Instalação Completa">
+        <option value="Desinstalação de Equipamento">
+        <option value="Remanejamento de Unidade">
+        <option value="Recarga de Gás R-22">
+        <option value="Recarga de Gás R-410A">
+        <option value="Visita Técnica de Diagnóstico">
+        <option value="Troca de Placa Eletrônica Principal">
+        <option value="Substituição de Capacitor de Partida">
+        <option value="Troca de Motor Ventilador">
+    </datalist>
 
     <script>
         const container = document.getElementById('servicesContainer');
+        const btnAdd = document.getElementById('addService');
         const displayTotal = document.getElementById('displayTotal');
+        const displayEquipment = document.getElementById('displayEquipment');
+        const liveList = document.getElementById('liveList');
+        const serviceChips = document.querySelectorAll('.service-chip');
         const acModel = document.getElementById('acModel');
         const acPower = document.getElementById('acPower');
         
-        let orçamentos = JSON.parse(localStorage.getItem('bjc_history_final')) || [];
+        let orçamentos = JSON.parse(localStorage.getItem('bjc_orcamentos')) || [];
 
-        function updateOrder() {
-            let total = 0;
-            document.querySelectorAll('.service-card').forEach(row => {
-                total += parseFloat(row.querySelector('.service-price').value) || 0;
-            });
-            displayTotal.innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        const iconMap = {
+            'limpeza': 'wind', 'higienização': 'sparkles', 'instalação': 'settings',
+            'gás': 'cylinder', 'vazamento': 'droplets', 'placa': 'cpu',
+            'sensor': 'thermometer', 'capacitor': 'zap', 'visita': 'map-pin', 'peça': 'wrench'
+        };
+
+        function getIconByService(text) {
+            text = text.toLowerCase();
+            for (let key in iconMap) { if (text.includes(key)) return iconMap[key]; }
+            return 'briefcase';
         }
 
         function createServiceRow(name = "", price = "") {
             const card = document.createElement('div');
             card.className = 'service-card bg-white border border-slate-100 p-3 rounded-2xl shadow-sm flex flex-col gap-3';
+            const iconName = getIconByService(name || "briefcase");
+            
             card.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500"><i data-lucide="wrench" class="w-4 h-4"></i></div>
-                    <input type="text" placeholder="Serviço..." value="${name}" class="service-desc flex-grow bg-transparent text-sm font-bold text-slate-700 outline-none">
-                    <button type="button" class="remove-row text-slate-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <div class="w-10 h-10 rounded-xl bg-sky-50 flex items-center justify-center text-sky-500 service-icon-box">
+                        <i data-lucide="${iconName}" class="w-5 h-5"></i>
+                    </div>
+                    <div class="flex-grow">
+                        <input type="text" list="servicosSugestoes" placeholder="Nome do serviço..." value="${name}"
+                            class="service-desc w-full bg-transparent text-sm font-bold text-slate-700 outline-none">
+                    </div>
+                    <button type="button" class="remove-row text-slate-300 p-1">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
                 </div>
-                <div class="flex items-center justify-between pl-11">
-                    <span class="text-[9px] font-black text-slate-300 uppercase">Valor R$</span>
-                    <input type="number" step="0.01" value="${price}" class="service-price w-24 px-3 py-1.5 bg-slate-50 border-none rounded-xl text-xs font-black text-right outline-none text-sky-600">
+                <div class="flex items-center justify-between pl-1">
+                    <span class="text-[9px] font-black text-slate-300 uppercase">Preço</span>
+                    <div class="relative w-32">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-sky-500">R$</span>
+                        <input type="number" step="0.01" placeholder="0,00" value="${price}"
+                            class="service-price w-full pl-9 pr-4 py-2 bg-slate-50 border-none rounded-xl text-xs font-black text-slate-700 text-right outline-none">
+                    </div>
                 </div>
             `;
+            
             container.appendChild(card);
             lucide.createIcons();
-            card.querySelector('.service-price').oninput = updateOrder;
+
+            const descInput = card.querySelector('.service-desc');
+            const priceInput = card.querySelector('.service-price');
+            const iconBox = card.querySelector('.service-icon-box');
+
+            descInput.oninput = () => {
+                const iconName = getIconByService(descInput.value);
+                iconBox.innerHTML = `<i data-lucide="${iconName}" class="w-5 h-5"></i>`;
+                lucide.createIcons();
+                updateOrder();
+            };
+            
+            priceInput.oninput = updateOrder;
             card.querySelector('.remove-row').onclick = () => { card.remove(); updateOrder(); };
+            
             updateOrder();
         }
 
-        document.querySelectorAll('.service-chip').forEach(chip => {
-            chip.onclick = () => createServiceRow(chip.dataset.service, chip.dataset.price);
+        serviceChips.forEach(chip => {
+            chip.onclick = () => {
+                const service = chip.getAttribute('data-service');
+                const price = chip.getAttribute('data-price');
+                createServiceRow(service, price);
+            };
         });
-        document.getElementById('addService').onclick = () => createServiceRow();
 
-        function showPreview() {
-            const client = document.getElementById('clientName').value;
-            const phone = document.getElementById('clientPhone').value;
-            if (!client || !phone) {
-                alert("Preencha o Nome e WhatsApp.");
-                return;
-            }
+        function updateOrder() {
+            let total = 0;
+            let listHtml = "";
+            displayEquipment.innerText = `${acModel.value} - ${acPower.value} BTUs`;
             
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('pt-BR');
-            const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-
-            document.getElementById('pdfId').innerText = Math.floor(Math.random() * 9000) + 1000;
-            document.getElementById('pdfDate').innerText = dateStr;
-            document.getElementById('footerTime').innerText = `Emitido em: ${dateStr} às ${timeStr}`;
-            document.getElementById('pdfClientName').innerText = client;
-            document.getElementById('pdfClientPhone').innerText = phone;
-            document.getElementById('pdfEquip').innerText = `${acModel.value} - ${acPower.value} BTUs`;
-            document.getElementById('pdfTotal').innerText = displayTotal.innerText;
-
-            const tbody = document.getElementById('pdfTableBody');
-            tbody.innerHTML = "";
-            let hasService = false;
-            document.querySelectorAll('.service-card').forEach(row => {
-                const desc = row.querySelector('.service-desc').value;
+            document.querySelectorAll('.service-card').forEach((row) => {
+                const desc = row.querySelector('.service-desc').value || "";
                 const price = parseFloat(row.querySelector('.service-price').value) || 0;
+                total += price;
                 if(desc) {
-                    hasService = true;
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="padding: 18px 25px; font-size: 14px; color: #334155; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${desc}</td>
-                            <td style="padding: 18px 25px; font-size: 15px; font-weight: 800; text-align: right; color: #0f172a; border-bottom: 1px solid #f1f5f9;">R$ ${price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                        </tr>`;
+                    listHtml += `<div class="flex justify-between items-center py-1.5 border-b border-white/5">
+                        <span class="text-[11px] text-slate-400 font-medium truncate pr-4">• ${desc}</span>
+                        <span class="font-black text-sky-400 text-[11px] shrink-0">R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                    </div>`;
+                }
+            });
+            liveList.innerHTML = listHtml;
+            displayTotal.innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+
+        acModel.onchange = updateOrder;
+        acPower.onchange = updateOrder;
+
+        function generateProfessionalMessage() {
+            const cliente = document.getElementById('clientName').value || "Cliente";
+            const modelo = acModel.value;
+            const potencia = acPower.value;
+            let servicosTexto = "";
+            let total = 0;
+
+            document.querySelectorAll('.service-card').forEach(row => {
+                const d = row.querySelector('.service-desc').value;
+                const p = parseFloat(row.querySelector('.service-price').value) || 0;
+                if(d) {
+                    total += p;
+                    servicosTexto += `• *${d}* - R$ ${p.toLocaleString('pt-BR', {minimumFractionDigits: 2})}\n`;
                 }
             });
 
-            if (!hasService) {
-                alert("Adicione serviços.");
-                return;
-            }
-
-            document.getElementById('previewModal').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
+            return `❄️ *ORÇAMENTO TÉCNICO*\n\nOlá *${cliente}*!\n\n📍 *Equipamento:* ${modelo} (${potencia} BTUs)\n\n🛠 *Serviços:*\n${servicosTexto}\n💰 *Total: R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}*\n\nAguardo sua confirmação!`;
         }
 
-        async function finalizePDF() {
-            const client = document.getElementById('clientName').value;
-            const element = document.getElementById('pdfTemplate');
-            
-            const opt = { 
-                margin: [0, 0, 0, 0], 
-                filename: `Orcamento_${client.replace(/\s+/g,'_')}.pdf`, 
-                image: {type:'jpeg', quality:1.0}, 
-                html2canvas: {scale:3, useCORS: true, letterRendering: true, backgroundColor: '#ffffff'}, 
-                jsPDF: {unit:'mm', format:'a4', orientation:'portrait'} 
-            };
-            
-            await html2pdf().set(opt).from(element).save();
+        const historyDrawer = document.getElementById('historyDrawer');
+        const previewModal = document.getElementById('previewModal');
 
-            orçamentos.unshift({ 
-                id: Date.now(), 
-                cliente: client, 
-                total: displayTotal.innerText, 
-                data: new Date().toLocaleDateString('pt-BR')
-            });
-            localStorage.setItem('bjc_history_final', JSON.stringify(orçamentos));
-            
-            document.getElementById('previewModal').style.display = 'none';
-            document.getElementById('successModal').style.display = 'flex';
-        }
-
-        document.getElementById('btnPreview').onclick = showPreview;
-        document.getElementById('btnConfirmGenerate').onclick = finalizePDF;
-        document.getElementById('btnBackToEdit').onclick = () => { 
-            document.getElementById('previewModal').style.display = 'none'; 
-            document.body.style.overflow = 'auto'; 
-        };
-        document.getElementById('btnOpenHistory').onclick = () => { 
-            renderHistory(); 
-            document.getElementById('historyDrawer').classList.add('open'); 
-        };
-        document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
-        document.getElementById('btnCloseSuccess').onclick = () => { 
-            document.getElementById('successModal').style.display = 'none'; 
-            document.body.style.overflow = 'auto'; 
-            location.reload(); 
+        document.getElementById('btnOpenHistory').onclick = () => { renderHistory(); historyDrawer.classList.add('open'); };
+        document.getElementById('btnCloseHistory').onclick = () => historyDrawer.classList.remove('open');
+        document.getElementById('btnClearHistory').onclick = () => { if(confirm("Limpar histórico?")) { orçamentos = []; localStorage.removeItem('bjc_orcamentos'); renderHistory(); } };
+        
+        document.getElementById('btnPreview').onclick = () => {
+            document.getElementById('previewContent').innerText = generateProfessionalMessage();
+            previewModal.style.display = 'flex';
         };
         
-        document.getElementById('btnShareZap').onclick = () => {
-            const client = document.getElementById('clientName').value;
-            const phone = document.getElementById('clientPhone').value;
-            window.open(`https://wa.me/55${phone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá *'+client+'*! Seu orçamento de ar-condicionado já está pronto. Estou te enviando o PDF em seguida!')}`, '_blank');
+        document.getElementById('closePreview').onclick = () => previewModal.style.display = 'none';
+
+        document.getElementById('confirmSend').onclick = () => {
+            const msg = generateProfessionalMessage();
+            const data = {
+                id: Date.now(),
+                cliente: document.getElementById('clientName').value,
+                telefone: document.getElementById('clientPhone').value,
+                total: displayTotal.innerText,
+                status: 'pendente',
+                mensagem: msg,
+                data: new Date().toLocaleDateString('pt-BR')
+            };
+            orçamentos.unshift(data);
+            localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
+            previewModal.style.display = 'none';
+            window.location.href = `https://wa.me/${data.telefone}?text=${encodeURIComponent(msg)}`;
         };
 
         function renderHistory() {
             const list = document.getElementById('historyList');
-            if(orçamentos.length === 0) {
-                list.innerHTML = `<p class="text-center py-10 opacity-30 text-[10px] font-bold uppercase tracking-widest">Vazio</p>`;
-                return;
-            }
-            list.innerHTML = orçamentos.map(o => `
-                <div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
-                    <div>
-                        <p class="text-[10px] font-black uppercase text-slate-800">${o.cliente}</p>
-                        <p class="text-[8px] text-slate-400 font-bold">${o.data}</p>
+            list.innerHTML = orçamentos.length ? "" : "<p class='text-center py-10 opacity-30 text-xs font-black'>Sem Registros</p>";
+            orçamentos.forEach(o => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-2";
+                item.innerHTML = `
+                    <div class="flex justify-between">
+                        <span class="text-[10px] font-black uppercase">${o.cliente}</span>
+                        <span class="status-badge status-${o.status}">${o.status}</span>
                     </div>
-                    <p class="text-xs font-black text-sky-600">R$ ${o.total}</p>
-                </div>
-            `).join('');
-            lucide.createIcons();
+                    <div class="flex justify-between items-end">
+                        <span class="text-xs font-black text-sky-600">R$ ${o.total}</span>
+                        <span class="text-[8px] font-bold text-slate-400">${o.data}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
         }
 
-        window.onload = () => { 
-            lucide.createIcons(); 
-            updateOrder(); 
+        btnAdd.onclick = () => createServiceRow();
+        
+        window.onload = () => {
+            lucide.createIcons();
+            renderHistory();
+            updateOrder();
         };
     </script>
 </body>
