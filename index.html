@@ -2,8 +2,21 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Configurações de Ícone para App (Android e iOS) -->
+    <!-- Usando o mesmo ícone de floco de neve do cabeçalho -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='100%' height='100%' fill='%230ea5e9'/><path d='M2 12h20M12 2v20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93'/></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='100%' height='100%' fill='%230ea5e9'/><path d='M2 12h20M12 2v20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93'/></svg>">
+    
+    <!-- Meta Tags para Transformar em APP -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OrcaPRO">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="theme-color" content="#0ea5e9">
+    <meta name="description" content="Sistema Profissional de Orçamentos para Climatização">
+
     <title>Gerador de Orçamentos PRO</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -14,27 +27,38 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
         
         :root { --primary: #0ea5e9; --secondary: #0369a1; --dark: #0f172a; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; color: var(--dark); -webkit-tap-highlight-color: transparent; }
-        .hero-gradient { background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%); }
-        .glass-form { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
-        .input-style { background: #ffffff; border: 1.5px solid #e2e8f0; transition: all 0.2s ease; }
-        .input-style:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); outline: none; }
         
-        #pdf-wrapper {
-            position: absolute;
-            left: -9999px;
-            top: -9999px;
+        /* Ajustes para parecer APP Nativo */
+        * {
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+        
+        input, select, textarea {
+            user-select: text !important;
         }
 
-        #pdf-template { 
-            width: 210mm; 
-            min-height: 297mm;
-            background: white; 
-            color: #1e293b; 
-            font-family: 'Arial', sans-serif;
-            padding: 20mm;
-            box-sizing: border-box;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: #f8fafc; 
+            color: var(--dark);
+            overflow-x: hidden;
+            overscroll-behavior-y: contain;
         }
+
+        .hero-gradient { background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%); }
+        .glass-form { background: rgba(255, 255, 255, 0.98); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        
+        .input-style { 
+            background: #ffffff; 
+            border: 1.5px solid #e2e8f0; 
+            transition: all 0.2s ease; 
+            appearance: none;
+        }
+        .input-style:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1); outline: none; }
+        
+        #pdf-wrapper { position: absolute; left: -9999px; top: -9999px; }
+        #pdf-template { width: 210mm; min-height: 297mm; background: white; color: #1e293b; font-family: 'Arial', sans-serif; padding: 20mm; box-sizing: border-box; }
 
         #pdf-preview-canvas {
             background: white;
@@ -43,17 +67,16 @@
             transform-origin: top center;
         }
 
-        @media (min-width: 640px) {
-            #pdf-preview-canvas { transform: scale(0.6); }
-        }
+        @media (min-width: 640px) { #pdf-preview-canvas { transform: scale(0.6); } }
 
-        .history-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 100; transition: right 0.3s ease; box-shadow: -10px 0 30px rgba(0,0,0,0.1); }
+        .history-drawer { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100%; background: white; z-index: 100; transition: right 0.3s ease; box-shadow: -10px 0 30px rgba(0,0,0,0.1); padding-top: env(safe-area-inset-top); }
         .history-drawer.open { right: 0; }
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); z-index: 150; padding: 1rem; align-items: center; justify-content: center; overflow-y: auto; }
+        
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); z-index: 150; padding: 1rem; padding-top: env(safe-area-inset-top); align-items: center; justify-content: center; overflow-y: auto; }
+        
         .service-chip { transition: all 0.2s ease; cursor: pointer; border: 1.5px solid #f1f5f9; white-space: nowrap; }
         .service-chip:active { transform: scale(0.95); background-color: #e0f2fe; }
 
-        /* Estilo elegante para o Erro */
         #errorToast {
             position: fixed;
             bottom: -100px;
@@ -62,16 +85,17 @@
             z-index: 200;
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             opacity: 0;
+            padding-bottom: env(safe-area-inset-bottom);
         }
-        #errorToast.show {
-            bottom: 30px;
-            opacity: 1;
-        }
+        #errorToast.show { bottom: 30px; opacity: 1; }
+
+        .safe-pb { padding-bottom: env(safe-area-inset-bottom); }
+        .safe-pt { padding-top: env(safe-area-inset-top); }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Toast de Erro Elegante -->
+    <!-- Toast de Erro -->
     <div id="errorToast" class="w-[90%] max-w-xs">
         <div class="bg-white/90 backdrop-blur-xl border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 flex items-center gap-4">
             <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
@@ -84,12 +108,17 @@
         </div>
     </div>
 
-    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 px-4 py-3">
+    <!-- Barra de Navegação -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 px-4 py-3 safe-pt">
         <div class="max-w-md mx-auto flex justify-between items-center">
-            <div class="w-8 h-8 hero-gradient rounded-lg flex items-center justify-center shadow-lg">
-                <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
+            <div class="flex items-center gap-2">
+                <!-- ÍCONE ORIGINAL QUE AGORA É O ÍCONE DO APP TAMBÉM -->
+                <div class="w-8 h-8 hero-gradient rounded-lg flex items-center justify-center shadow-lg">
+                    <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
+                </div>
+                <span class="text-[10px] font-black tracking-tighter text-slate-400 uppercase">OrcaPRO v1.0</span>
             </div>
-            <button id="btnOpenHistory" class="relative p-2 text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-2">
+            <button id="btnOpenHistory" class="relative p-2 text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-2 active:scale-90">
                 <span class="text-[10px] font-bold uppercase block tracking-widest text-slate-400">Histórico</span>
                 <i data-lucide="history" class="w-6 h-6"></i>
                 <span id="historyBadge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
@@ -107,6 +136,7 @@
     <main class="max-w-md mx-auto w-full px-4 -mt-12 relative z-20 flex-grow mb-10">
         <div class="glass-form rounded-[2.5rem] p-6 shadow-xl border border-white">
             <form id="quoteForm" class="space-y-6">
+                <!-- Informações do Técnico -->
                 <div class="space-y-3">
                     <h3 class="text-[9px] font-black text-sky-600 uppercase tracking-[0.2em] ml-2">Dados do Profissional</h3>
                     <div class="flex flex-col gap-2">
@@ -115,6 +145,7 @@
                     </div>
                 </div>
 
+                <!-- Dados do Cliente -->
                 <div class="space-y-3 pt-2 border-t border-slate-100">
                     <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Dados do Cliente</h3>
                     <input type="text" id="clientName" required placeholder="Nome do Cliente" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center">
@@ -122,10 +153,11 @@
                     <input type="text" id="clientPhoneAlt" placeholder="Contato Adicional (Opcional)" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center opacity-80">
                 </div>
 
+                <!-- Serviços -->
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">Serviços Rápidos</h3>
-                        <button type="button" id="addService" class="text-sky-600 text-[10px] font-black uppercase tracking-tighter">+ NOVO ITEM</button>
+                        <button type="button" id="addService" class="text-sky-600 text-[10px] font-black uppercase tracking-tighter active:scale-95">+ NOVO ITEM</button>
                     </div>
                     
                     <div id="serviceChips" class="flex flex-wrap gap-2 max-h-40 overflow-y-auto pb-2">
@@ -142,6 +174,7 @@
                     <div id="servicesContainer" class="space-y-4"></div>
                 </div>
 
+                <!-- Resumo -->
                 <div class="bg-slate-900 rounded-[2rem] p-6 text-white shadow-2xl border border-slate-800">
                     <div class="flex justify-between items-center">
                         <span class="text-[8px] font-black uppercase tracking-[0.3em] text-sky-400">Total Geral</span>
@@ -156,7 +189,7 @@
         </div>
     </main>
 
-    <footer class="max-w-md mx-auto w-full py-8 text-center space-y-4">
+    <footer class="max-w-md mx-auto w-full py-8 text-center space-y-4 safe-pb">
         <div class="space-y-1">
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">2026 GERENCIAMENTO TÉCNICO</p>
             <p class="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">By : B.J.C</p>
@@ -167,9 +200,10 @@
         </a>
     </footer>
 
-    <!-- TEMPLATE DO PDF -->
+    <!-- PDF Template Oculto -->
     <div id="pdf-wrapper">
         <div id="pdf-template">
+            <!-- Template permanece igual -->
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 3px solid #0ea5e9;">
                 <div style="width: 65%;">
                     <h1 id="pdf-business-title" style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase;"></h1>
@@ -198,7 +232,7 @@
             <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 30px;">
                 <thead>
                     <tr style="background: #0f172a; color: white;">
-                        <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">DESCRIÇÃO DOS SERVIÇOS</th>
+                        <th style="padding: 12px; text-align: left; border-radius: 8px 0 0 0;">DESCRIÇÃO</th>
                         <th style="padding: 12px; text-align: left;">EQUIPAMENTO</th>
                         <th style="padding: 12px; text-align: right; border-radius: 0 8px 0 0;">VALOR</th>
                     </tr>
@@ -208,13 +242,9 @@
 
             <div style="display: flex; justify-content: flex-end; padding: 20px; border-top: 3px solid #0ea5e9; background: #f1f5f9; border-radius: 0 0 10px 10px;">
                 <div style="text-align: right;">
-                    <span style="font-weight: 800; font-size: 14px; color: #475569; text-transform: uppercase; margin-right: 20px;">Valor Total do Orçamento</span>
+                    <span style="font-weight: 800; font-size: 14px; color: #475569; text-transform: uppercase; margin-right: 20px;">Valor Total</span>
                     <span id="pdf-total" style="font-weight: 800; font-size: 24px; color: #0ea5e9;"></span>
                 </div>
-            </div>
-
-            <div style="margin-top: 40px; text-align: center; font-size: 10px; color: #94a3b8; border-top: 1px dashed #e2e8f0; padding-top: 15px;">
-                Este orçamento tem validade de 10 dias a partir da data de emissão.
             </div>
         </div>
     </div>
@@ -225,33 +255,36 @@
             <div class="p-5 border-b flex justify-between items-center bg-slate-50">
                 <div class="flex items-center gap-2">
                     <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-widest">Documento Gerado</span>
+                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-widest text-center">Prévia do Documento</span>
                 </div>
-                <button type="button" id="closePreview" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                <button type="button" id="closePreview" class="p-2 hover:bg-slate-200 rounded-full transition-colors active:scale-90">
                     <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
                 </button>
             </div>
             <div class="flex-grow overflow-y-auto bg-slate-400 p-4 flex justify-center items-start">
                 <div id="pdf-preview-canvas"></div>
             </div>
-            <div class="p-5 bg-white border-t space-y-3">
+            <div class="p-5 bg-white border-t space-y-3 safe-pb">
                 <button type="button" id="btnDownloadOnly" class="w-full py-4 bg-slate-800 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-transform">
-                    <i data-lucide="download" class="w-4 h-4"></i> BAIXAR ORÇAMENTO (PDF)
+                    <i data-lucide="download" class="w-4 h-4"></i> SALVAR NO CELULAR
                 </button>
                 <button type="button" id="btnSendWhatsapp" class="w-full py-4 bg-[#25D366] text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95 transition-transform shadow-lg">
-                    <i data-lucide="send" class="w-4 h-4"></i> ENVIAR PELO WHATSAPP
+                    <i data-lucide="send" class="w-4 h-4"></i> ENVIAR WHATSAPP
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- History -->
+    <!-- History Drawer -->
     <div id="historyDrawer" class="history-drawer flex flex-col">
         <div class="p-6 border-b flex justify-between items-center bg-slate-50">
-            <h2 class="font-black text-slate-800 uppercase text-sm">Histórico</h2>
-            <button id="btnCloseHistory" class="p-2 text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            <h2 class="font-black text-slate-800 uppercase text-sm">Histórico App</h2>
+            <button id="btnCloseHistory" class="p-2 text-slate-400 active:scale-90"><i data-lucide="x" class="w-5 h-5"></i></button>
         </div>
         <div id="historyList" class="flex-grow overflow-y-auto p-4 space-y-3"></div>
+        <div class="p-4 safe-pb bg-slate-50 border-t text-center">
+            <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest">Os dados ficam salvos apenas neste aparelho</p>
+        </div>
     </div>
 
     <script>
@@ -276,9 +309,8 @@
         function showError(msg) {
             errorMessage.innerText = msg;
             errorToast.classList.add('show');
-            setTimeout(() => {
-                errorToast.classList.remove('show');
-            }, 3000);
+            if (window.navigator.vibrate) window.navigator.vibrate(50);
+            setTimeout(() => { errorToast.classList.remove('show'); }, 3000);
         }
 
         function createServiceRow(name = "", price = "", model = "Split Hi-Wall", power = "9.000") {
@@ -286,8 +318,8 @@
             card.className = 'bg-white border-2 border-slate-100 p-4 rounded-3xl flex flex-col gap-3 shadow-sm service-row-item';
             card.innerHTML = `
                 <div class="flex justify-between items-center gap-2">
-                    <input type="text" placeholder="Descrição do serviço" value="${name}" class="service-desc flex-grow text-xs font-bold outline-none text-sky-700 bg-transparent">
-                    <button type="button" class="remove-row text-red-200 hover:text-red-500"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <input type="text" placeholder="Ex: Higienização Completa" value="${name}" class="service-desc flex-grow text-xs font-bold outline-none text-sky-700 bg-transparent">
+                    <button type="button" class="remove-row text-red-200 hover:text-red-500 active:scale-90"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <select class="service-model bg-slate-50 border-none py-2 rounded-xl text-[10px] font-bold px-2">
@@ -350,24 +382,23 @@
                     servicesHtml += `
                         <tr>
                             <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e293b;">${desc}</td>
-                            <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; color: #64748b;">${model} - ${btu} BTUs</td>
+                            <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; color: #64748b;">${model} (${btu})</td>
                             <td style="padding: 12px; border-bottom: 1px solid #f1f5f9; text-align: right; font-weight: 700; color: #0ea5e9;">R$ ${parseFloat(price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                         </tr>
                     `;
                 }
             });
-            document.getElementById('pdf-services-list').innerHTML = servicesHtml || '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #ccc;">Nenhum serviço listado</td></tr>';
+            document.getElementById('pdf-services-list').innerHTML = servicesHtml || '<tr><td colspan="3" style="padding: 20px; text-align: center; color: #ccc;">Sem itens</td></tr>';
         }
 
         async function generatePDFFile(shouldSave = true) {
             const cliente = document.getElementById('clientName').value;
             const element = document.getElementById('pdf-template');
-            
             const opt = {
                 margin: 0,
-                filename: `Orcamento_${cliente.replace(/\s+/g, '_')}.pdf`,
+                filename: `OrcaPRO_${cliente.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true, logging: false },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
@@ -403,12 +434,11 @@
                 items 
             });
             
-            if(orçamentos.length > 50) orçamentos.pop();
             localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
 
             if (sendToZap && telefone) {
-                const msg = encodeURIComponent(`Olá ${cliente}, estou enviando o seu orçamento conforme conversamos. O PDF foi gerado e enviado.`);
-                window.location.href = `https://wa.me/55${telefone.replace(/\D/g,'')}?text=${msg}`;
+                const msg = encodeURIComponent(`Olá ${cliente}, estou enviando o seu orçamento profissional.`);
+                window.location.href = `whatsapp://send?phone=55${telefone.replace(/\D/g,'')}&text=${msg}`;
             }
 
             document.getElementById('previewModal').style.display = 'none';
@@ -418,14 +448,8 @@
             const cliente = document.getElementById('clientName').value;
             const hasServices = document.querySelectorAll('.service-row-item').length > 0;
 
-            if(!cliente) {
-                showError("Por favor, digite o nome do cliente.");
-                return;
-            }
-            if(!hasServices) {
-                showError("Adicione ao menos um serviço no orçamento.");
-                return;
-            }
+            if(!cliente) return showError("Nome do cliente obrigatório.");
+            if(!hasServices) return showError("Adicione serviços ao orçamento.");
 
             populateTemplate();
             const canvas = document.getElementById('pdf-preview-canvas');
@@ -444,20 +468,18 @@
         function renderHistory() {
             const list = document.getElementById('historyList');
             list.innerHTML = orçamentos.map(o => `
-                <div class="bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm space-y-2 relative group">
-                    <button onclick="deleteFromHistory(${o.id})" class="absolute top-3 right-3 p-2 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
+                <div class="bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm space-y-2 relative">
+                    <button onclick="deleteFromHistory(${o.id})" class="absolute top-3 right-3 p-2 text-red-300 active:scale-90"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     <div class="flex justify-between items-start pr-8">
                         <div>
                             <h4 class="font-black text-slate-800 text-xs uppercase">${o.cliente}</h4>
-                            <p class="text-[9px] text-slate-400 font-bold">${o.data} • ${o.items.length} itens</p>
+                            <p class="text-[9px] text-slate-400 font-bold">${o.data} • ${o.items.length} serviços</p>
                         </div>
                         <div class="text-xs font-black text-sky-600">R$ ${o.total}</div>
                     </div>
-                    <button onclick="loadFromHistory(${o.id})" class="w-full py-2 bg-sky-50 text-sky-600 rounded-xl text-[9px] font-black uppercase">Recuperar Dados</button>
+                    <button onclick="loadFromHistory(${o.id})" class="w-full py-2 bg-sky-50 text-sky-600 rounded-xl text-[9px] font-black uppercase active:scale-95">Abrir Orçamento</button>
                 </div>
-            `).join('') || '<div class="text-center py-20 text-slate-300 font-black uppercase text-[10px] tracking-widest">Nenhum histórico disponível</div>';
+            `).join('') || '<div class="text-center py-20 text-slate-300 font-black text-[10px]">Histórico Vazio</div>';
             lucide.createIcons();
             updateOrder();
         }
@@ -468,7 +490,7 @@
         };
 
         window.deleteFromHistory = (id) => {
-            if(confirm("Deseja apagar este orçamento do histórico?")) {
+            if(confirm("Apagar este registro?")) {
                 orçamentos = orçamentos.filter(x => x.id !== id);
                 localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
                 renderHistory();
@@ -488,11 +510,9 @@
 
         document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
 
-        window.onload = () => { 
-            lucide.createIcons(); 
-            updateOrder(); 
-        };
+        window.onload = () => { lucide.createIcons(); updateOrder(); };
     </script>
 </body>
 </html>
+
 
