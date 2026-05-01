@@ -34,7 +34,7 @@
                 <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
             </div>
             <button id="btnOpenHistory" class="relative p-2 text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-2">
-                <span class="text-[10px] font-bold uppercase hidden sm:block tracking-widest text-slate-400">Histórico</span>
+                <span class="text-[10px] font-bold uppercase block tracking-widest text-slate-400">Meus Históricos</span>
                 <i data-lucide="history" class="w-6 h-6"></i>
                 <span id="historyBadge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
@@ -54,6 +54,7 @@
                 <div class="space-y-3">
                     <input type="text" id="clientName" required placeholder="Nome Completo do Cliente" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center">
                     <input type="number" id="clientPhone" required placeholder="WhatsApp (DDD + Número)" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center border-sky-100 bg-sky-50/20">
+                    <input type="text" id="clientPhoneAlt" placeholder="Outro Telefone / Contato (Opcional)" class="input-style w-full px-4 py-3 rounded-2xl text-sm font-semibold text-center opacity-80">
                 </div>
 
                 <div class="space-y-4">
@@ -86,11 +87,16 @@
         </div>
     </main>
 
+    <!-- Rodapé de Direitos Reservados -->
+    <footer class="max-w-md mx-auto w-full py-8 text-center space-y-1">
+        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Todos direitos reservados</p>
+        <p class="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">By : B.J.C</p>
+    </footer>
+
     <!-- Template do PDF -->
     <div id="pdf-template">
         <div style="display: flex; justify-content: space-between; border-bottom: 2px solid #0ea5e9; padding-bottom: 15px; margin-bottom: 30px;">
             <div>
-                <!-- Alterado conforme solicitação -->
                 <h1 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0; text-transform: uppercase;">Soluções Técnicas em Ar-Condicionado</h1>
                 <p style="font-size: 10px; color: #64748b; margin: 5px 0 0 0;">Relatório Detalhado de Serviços</p>
             </div>
@@ -103,7 +109,8 @@
         <div style="margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
             <div style="font-size: 12px; line-height: 1.6;">
                 <p style="margin: 0;"><strong>Cliente:</strong> <span id="pdf-client"></span></p>
-                <p style="margin: 0;"><strong>WhatsApp:</strong> <span id="pdf-phone"></span></p>
+                <p style="margin: 0;"><strong>Contato Principal:</strong> <span id="pdf-phone"></span></p>
+                <p style="margin: 0; display: none;" id="pdf-phone-alt-container"><strong>Contato Alternativo:</strong> <span id="pdf-phone-alt"></span></p>
             </div>
         </div>
 
@@ -151,7 +158,7 @@
         const modelos = ["Split Hi-Wall", "Split Inverter", "Multi Split", "Piso Teto", "Cassete", "ACJ (Janela)", "Duto", "Portátil", "Cortina de Ar", "VRF / VRV", "Chiller", "Self Contained", "Fan Coil"];
         const potencias = ["7.000", "7.500", "9.000", "10.000", "12.000", "18.000", "22.000", "24.000", "30.000", "36.000", "48.000", "60.000", "80.000", "TR (Industrial)"];
 
-        function createServiceRow(name = "", price = "") {
+        function createServiceRow(name = "", price = "", model = "Split Hi-Wall", power = "9.000") {
             const card = document.createElement('div');
             card.className = 'bg-white border-2 border-slate-100 p-4 rounded-3xl flex flex-col gap-3 shadow-sm service-row-item';
             
@@ -163,10 +170,10 @@
                 
                 <div class="grid grid-cols-2 gap-2">
                     <select class="service-model bg-slate-50 border-none py-2 rounded-xl text-[10px] font-bold px-2 outline-none">
-                        ${modelos.map(m => `<option value="${m}">${m}</option>`).join('')}
+                        ${modelos.map(m => `<option value="${m}" ${m === model ? 'selected' : ''}>${m}</option>`).join('')}
                     </select>
                     <select class="service-power bg-slate-50 border-none py-2 rounded-xl text-[10px] font-bold px-2 outline-none">
-                        ${potencias.map(p => `<option value="${p}">${p} BTUs</option>`).join('')}
+                        ${potencias.map(p => `<option value="${p}" ${p === power ? 'selected' : ''}>${p} BTUs</option>`).join('')}
                     </select>
                 </div>
 
@@ -195,15 +202,33 @@
                 total += p;
             });
             displayTotal.innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+            const badge = document.getElementById('historyBadge');
+            if (orçamentos.length > 0) badge.classList.remove('hidden');
+            else badge.classList.add('hidden');
         }
 
         btnAdd.onclick = () => createServiceRow();
 
-        async function generatePDF() {
-            const cliente = document.getElementById('clientName').value;
-            const telefone = document.getElementById('clientPhone').value;
-            const data = new Date().toLocaleString('pt-BR');
-            const total = displayTotal.innerText;
+        async function generatePDF(dataObj = null, isDownloadOnly = false) {
+            let cliente, telefone, telefoneAlt, data, total, items;
+
+            if (dataObj) {
+                ({ cliente, telefone, telefoneAlt, data, total, items } = dataObj);
+            } else {
+                cliente = document.getElementById('clientName').value;
+                telefone = document.getElementById('clientPhone').value;
+                telefoneAlt = document.getElementById('clientPhoneAlt').value;
+                data = new Date().toLocaleString('pt-BR');
+                total = displayTotal.innerText;
+                items = [];
+                document.querySelectorAll('.service-row-item').forEach(row => {
+                    const desc = row.querySelector('.service-desc').value;
+                    const model = row.querySelector('.service-model').value;
+                    const power = row.querySelector('.service-power').value;
+                    const price = row.querySelector('.service-price').value;
+                    if(desc) items.push({ desc, model, power, price });
+                });
+            }
 
             if(!cliente || !telefone) return alert("Preencha os dados do cliente!");
 
@@ -212,22 +237,23 @@
             document.getElementById('pdf-date').innerText = `Data: ${data}`;
             document.getElementById('pdf-total').innerText = `R$ ${total}`;
 
+            const altContainer = document.getElementById('pdf-phone-alt-container');
+            if (telefoneAlt) {
+                document.getElementById('pdf-phone-alt').innerText = telefoneAlt;
+                altContainer.style.display = 'block';
+            } else {
+                altContainer.style.display = 'none';
+            }
+
             let servicesHtml = "";
-            document.querySelectorAll('.service-row-item').forEach(row => {
-                const desc = row.querySelector('.service-desc').value;
-                const model = row.querySelector('.service-model').value;
-                const power = row.querySelector('.service-power').value;
-                const price = row.querySelector('.service-price').value;
-                
-                if(desc) {
-                    servicesHtml += `
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 12px; font-weight: 600;">${desc}</td>
-                            <td style="padding: 12px; color: #64748b;">${model} - ${power} BTUs</td>
-                            <td style="padding: 12px; text-align: right; font-weight: 700; color: #0f172a;">R$ ${parseFloat(price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                        </tr>
-                    `;
-                }
+            items.forEach(item => {
+                servicesHtml += `
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                        <td style="padding: 12px; font-weight: 600;">${item.desc}</td>
+                        <td style="padding: 12px; color: #64748b;">${item.model} - ${item.power} BTUs</td>
+                        <td style="padding: 12px; text-align: right; font-weight: 700; color: #0f172a;">R$ ${parseFloat(item.price).toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                    </tr>
+                `;
             });
             document.getElementById('pdf-services-list').innerHTML = servicesHtml;
 
@@ -236,33 +262,84 @@
             
             const opt = {
                 margin: 10,
-                filename: `Orcamento_${cliente}.pdf`,
+                filename: `Orcamento_${cliente.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             await html2pdf().set(opt).from(element).save();
-            element.style.display = 'none';
-
-            orçamentos.unshift({ cliente, total, data });
-            localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
             
-            const msg = encodeURIComponent(`Olá *${cliente}*, segue o seu orçamento detalhado em PDF para os serviços de refrigeração.`);
-            window.location.href = `https://wa.me/${telefone}?text=${msg}`;
+            if (!dataObj) {
+                orçamentos.unshift({ id: Date.now(), cliente, telefone, telefoneAlt, total, data, items });
+                localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
+                const msg = encodeURIComponent(`Olá *${cliente}*, segue o seu orçamento detalhado em PDF para os serviços de refrigeração.`);
+                window.location.href = `https://wa.me/${telefone}?text=${msg}`;
+            }
+            
+            element.style.display = 'none';
         }
 
-        document.getElementById('btnPreview').onclick = () => { if(document.getElementById('clientName').value) document.getElementById('previewModal').style.display = 'flex'; };
-        document.getElementById('closePreview').onclick = () => document.getElementById('previewModal').style.display = 'none';
-        document.getElementById('btnGenerateAndSend').onclick = generatePDF;
-        document.getElementById('btnOpenHistory').onclick = () => {
+        function downloadFromHistory(id) {
+            const orc = orçamentos.find(o => o.id === id);
+            if (orc) generatePDF(orc, true);
+        }
+
+        function loadFromHistory(id) {
+            const orc = orçamentos.find(o => o.id === id);
+            if (!orc) return;
+            
+            document.getElementById('clientName').value = orc.cliente;
+            document.getElementById('clientPhone').value = orc.telefone;
+            document.getElementById('clientPhoneAlt').value = orc.telefoneAlt || "";
+            container.innerHTML = "";
+            orc.items.forEach(item => createServiceRow(item.desc, item.price, item.model, item.power));
+            document.getElementById('historyDrawer').classList.remove('open');
+            updateOrder();
+        }
+
+        function deleteFromHistory(id) {
+            orçamentos = orçamentos.filter(o => o.id !== id);
+            localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
+            renderHistory();
+            updateOrder();
+        }
+
+        function renderHistory() {
             const list = document.getElementById('historyList');
             list.innerHTML = orçamentos.map(o => `
-                <div class="bg-slate-50 p-4 rounded-2xl border text-xs">
-                    <div class="flex justify-between font-black uppercase mb-1"><span>${o.cliente}</span> <span class="text-sky-600">R$ ${o.total}</span></div>
-                    <div class="text-[9px] text-slate-400">${o.data}</div>
+                <div class="bg-white p-4 rounded-3xl border-2 border-slate-100 shadow-sm space-y-3">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-grow">
+                            <h4 class="font-black text-slate-800 text-xs uppercase">${o.cliente}</h4>
+                            <p class="text-[9px] text-slate-400 font-bold">${o.data}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-xs font-black text-sky-600">R$ ${o.total}</div>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="loadFromHistory(${o.id})" class="flex-grow py-2 bg-sky-50 text-sky-600 rounded-xl text-[9px] font-black uppercase flex items-center justify-center gap-1">
+                            <i data-lucide="edit-3" class="w-3 h-3"></i> Editar
+                        </button>
+                        <button onclick="downloadFromHistory(${o.id})" class="p-2 bg-green-50 text-green-600 rounded-xl">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                        </button>
+                        <button onclick="deleteFromHistory(${o.id})" class="p-2 bg-red-50 text-red-500 rounded-xl">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
                 </div>
-            `).join('') || '<p class="text-center text-xs opacity-30 py-10">Vazio</p>';
+            `).join('') || '<div class="text-center py-20 opacity-20"><i data-lucide="folder-open" class="w-12 h-12 mx-auto mb-2"></i><p class="text-xs font-bold uppercase">Nenhum histórico</p></div>';
+            lucide.createIcons();
+        }
+
+        document.getElementById('btnPreview').onclick = () => { if(document.getElementById('clientName').value) document.getElementById('previewModal').style.display = 'flex'; else alert("Informe o cliente primeiro."); };
+        document.getElementById('closePreview').onclick = () => document.getElementById('previewModal').style.display = 'none';
+        document.getElementById('btnGenerateAndSend').onclick = () => { generatePDF(); document.getElementById('previewModal').style.display = 'none'; };
+        
+        document.getElementById('btnOpenHistory').onclick = () => {
+            renderHistory();
             document.getElementById('historyDrawer').classList.add('open');
         };
         document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
