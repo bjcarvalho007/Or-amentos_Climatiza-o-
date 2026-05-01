@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0ea5e9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Mestre do Clima - Gerador de Orçamento</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        
+        :root {
+            --primary: #0ea5e9;
+            --secondary: #0369a1;
+            --dark: #0f172a;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: var(--dark);
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%);
+        }
+
+        .glass-form {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .input-style {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+
+        .input-style:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.1);
+            outline: none;
+        }
+
+        .btn-action {
+            background: linear-gradient(to right, #0ea5e9, #0284c7);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:active {
+            transform: scale(0.96);
+        }
+
+        .service-row {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            padding: 1.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <div class="hero-gradient w-full pt-10 pb-24 px-6 text-white safe-top relative overflow-hidden">
+        <div class="absolute top-[-50px] right-[-50px] w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="max-w-md mx-auto relative z-10 text-center">
+            <h1 class="text-2xl font-[800] tracking-tight leading-none mb-2">GERADOR DE <span class="text-sky-200">ORÇAMENTO</span></h1>
+            <p class="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 text-sky-100">Ferramenta Técnica - Climatização</p>
+        </div>
+    </div>
+
+    <main class="max-w-md mx-auto w-full px-4 -mt-16 relative z-20 flex-grow mb-10">
+        <div class="glass-form rounded-[2.5rem] p-6 shadow-xl border border-white">
+            
+            <form id="quoteForm" class="space-y-4">
+                <!-- Dados do Cliente -->
+                <div class="grid grid-cols-1 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest text-center">Nome do Cliente</label>
+                        <input type="text" id="clientName" required placeholder="Nome do cliente" 
+                            class="input-style w-full px-4 py-2.5 rounded-xl text-sm font-medium text-center">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest text-center">WhatsApp do Cliente</label>
+                        <input type="number" id="clientPhone" required placeholder="Ex: 5563984001122 (DDI+DDD+NÚMERO)" 
+                            class="input-style w-full px-4 py-2.5 rounded-xl text-sm font-medium text-center border-sky-100 bg-sky-50/20">
+                        <p class="text-[9px] text-sky-600 font-bold mt-1 text-center uppercase tracking-tighter">⚠️ Digite: 55 + DDD + Seu Número</p>
+                    </div>
+                </div>
+
+                <hr class="border-slate-100">
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest text-center">Modelo</label>
+                        <select id="acModel" class="input-style w-full px-4 py-2.5 rounded-xl text-sm font-medium appearance-none text-center">
+                            <option value="Split Hi-Wall">Split Hi-Wall</option>
+                            <option value="Split Inverter">Split Inverter</option>
+                            <option value="Janela">Janela</option>
+                            <option value="Piso Teto">Piso Teto</option>
+                            <option value="Cassete">Cassete</option>
+                            <option value="Multi Split">Multi Split</option>
+                            <option value="Portátil">Portátil</option>
+                            <option value="Duto (Central)">Duto (Central)</option>
+                            <option value="VRF / VRV">VRF / VRV</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-widest text-center">Potência</label>
+                        <select id="acPower" class="input-style w-full px-4 py-2.5 rounded-xl text-sm font-medium appearance-none text-center">
+                            <option value="7.000">7k BTUs</option>
+                            <option value="9.000">9k BTUs</option>
+                            <option value="12.000">12k BTUs</option>
+                            <option value="18.000">18k BTUs</option>
+                            <option value="22.000">22k BTUs</option>
+                            <option value="24.000">24k BTUs</option>
+                            <option value="30.000">30k BTUs</option>
+                            <option value="36.000">36k BTUs</option>
+                            <option value="48.000">48k BTUs</option>
+                            <option value="60.000">60k BTUs</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO DE SERVIÇOS MÚLTIPLOS -->
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center px-1">
+                        <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Serviços a efetuar</label>
+                        <button type="button" id="addService" class="text-sky-600 flex items-center gap-1 text-[10px] font-bold uppercase hover:text-sky-700">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Adicionar Item
+                        </button>
+                    </div>
+                    
+                    <div id="servicesContainer" class="space-y-2"></div>
+                </div>
+
+                <!-- VISUALIZAÇÃO EM TEMPO REAL -->
+                <div class="bg-slate-900 rounded-3xl p-5 text-white shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10">
+                        <i data-lucide="file-text" class="w-12 h-12"></i>
+                    </div>
+                    <p class="text-[9px] font-bold uppercase tracking-[0.3em] text-sky-400 mb-3">Resumo Técnico</p>
+                    
+                    <!-- Exibição do Equipamento no Resumo -->
+                    <div id="equipmentSummary" class="mb-3 pb-2 border-b border-white/10">
+                         <div class="flex items-center gap-2 text-xs font-bold text-slate-100">
+                            <i data-lucide="monitor" class="w-3 h-3 text-sky-500"></i>
+                            <span id="displayEquipment">---</span>
+                         </div>
+                    </div>
+
+                    <div id="liveList" class="space-y-1 mb-4 min-h-[40px]">
+                        <p class="text-xs text-slate-500 italic">Adicione itens...</p>
+                    </div>
+                    
+                    <div class="flex justify-between items-end pt-3 border-t border-white/10">
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Total Geral</span>
+                        <div class="text-3xl font-black text-white">R$ <span id="displayTotal">0,00</span></div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button type="button" id="btnPreview" class="w-full py-3 rounded-xl border-2 border-slate-200 text-slate-600 font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-50 transition-all">
+                        <i data-lucide="eye" class="w-4 h-4"></i> Visualizar Orçamento Final
+                    </button>
+                    
+                    <button type="submit" class="btn-action w-full py-4 rounded-2xl text-white font-extrabold text-sm flex items-center justify-center gap-3 tracking-wider">
+                        GERAR E ENVIAR WHATSAPP
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Modal de Prévia -->
+    <div id="previewModal" class="modal-overlay">
+        <div class="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in duration-200">
+            <div class="bg-slate-100 px-6 py-4 flex justify-between items-center border-b border-slate-200">
+                <h3 class="text-[10px] font-black uppercase tracking-widest text-slate-500">Visualização do Cliente</h3>
+                <button type="button" id="closePreview" class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="previewContent" class="bg-[#e5ddd5] p-4 rounded-xl font-sans text-sm whitespace-pre-wrap text-slate-800 border border-slate-200 leading-relaxed max-h-[60vh] overflow-y-auto">
+                </div>
+            </div>
+            <div class="px-6 pb-6">
+                <button type="button" id="confirmSend" class="w-full py-3 bg-green-600 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                    Tudo certo! Enviar agora <i data-lucide="check-circle" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Ajustado -->
+    <footer class="mt-auto py-8 text-center px-6 flex flex-col items-center">
+        <p class="text-slate-400 text-[9px] uppercase tracking-[0.2em] mb-2 font-medium">© 2026 Gerador de Orçamentos</p>
+        <div class="inline-flex flex-col items-center gap-2">
+            <div class="flex items-center gap-1.5 grayscale opacity-60">
+                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-tighter">Desenvolvedor:</span>
+                <span class="bg-slate-800 text-white px-2 py-0.5 rounded text-[10px] font-black tracking-tighter">B.J.C</span>
+            </div>
+            
+            <!-- Botão de Contratação -->
+            <a href="https://wa.me/5563992" target="_blank" class="mt-2 px-4 py-2 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow-md transition-all flex items-center gap-2 group">
+                <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest group-hover:text-sky-600">Quer um site assim?</span>
+                <i data-lucide="external-link" class="w-3 h-3 text-sky-400"></i>
+            </a>
+        </div>
+    </footer>
+
+    <datalist id="servicosSugestoes">
+        <option value="Limpeza e Higienização Completa">
+        <option value="Instalação de Ar Condicionado">
+        <option value="Recarga de Gás Refrigerante">
+        <option value="Troca de Capacitor">
+        <option value="Reparo em Placa Eletrônica">
+        <option value="Conserto de Vazamento">
+        <option value="Mão de Obra Técnica">
+        <option value="Desinstalação">
+        <option value="Troca de Sensor">
+        <option value="Limpeza de Dreno">
+        <option value="Infraestrutura">
+        <option value="Visita Técnica">
+    </datalist>
+
+    <script>
+        lucide.createIcons();
+
+        const container = document.getElementById('servicesContainer');
+        const btnAdd = document.getElementById('addService');
+        const displayTotal = document.getElementById('displayTotal');
+        const displayEquipment = document.getElementById('displayEquipment');
+        const liveList = document.getElementById('liveList');
+        const previewModal = document.getElementById('previewModal');
+        const btnPreview = document.getElementById('btnPreview');
+        const closePreview = document.getElementById('closePreview');
+        const previewContent = document.getElementById('previewContent');
+        const quoteForm = document.getElementById('quoteForm');
+        const acModel = document.getElementById('acModel');
+        const acPower = document.getElementById('acPower');
+
+        function generateProfessionalMessage() {
+            const cliente = document.getElementById('clientName').value || "Cliente";
+            const modelo = acModel.value;
+            const potencia = acPower.value;
+            
+            const rows = document.querySelectorAll('.service-row');
+            let servicosTexto = "";
+            let total = 0;
+
+            rows.forEach(row => {
+                const d = row.querySelector('.service-desc').value;
+                const p = parseFloat(row.querySelector('.service-price').value) || 0;
+                if(d) {
+                    total += p;
+                    servicosTexto += `🔹 *${d}*\n   └ _R$ ${p.toLocaleString('pt-BR', {minimumFractionDigits: 2})}_\n\n`;
+                }
+            });
+
+            return `❄️ *ORÇAMENTO TÉCNICO | CLIMATIZAÇÃO*\n` +
+                   `━━━━━━━━━━━━━━━━━━\n\n` +
+                   `Olá, *${cliente}*!\n` +
+                   `Conforme solicitado, seguem os detalhes para manutenção do seu equipamento:\n\n` +
+                   `📍 *EQUIPAMENTO:* \n` +
+                   `↳ ${modelo} | ${potencia} BTUs\n\n` +
+                   `📝 *SERVIÇOS PROPOSTOS:*\n` +
+                   `${servicosTexto}` +
+                   `━━━━━━━━━━━━━━━━━━\n` +
+                   `💰 *VALOR TOTAL:* \n` +
+                   `👉 *R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}*\n\n` +
+                   `🛠 *DIFERENCIAIS:* \n` +
+                   `✅ Garantia estendida no serviço\n` +
+                   `✅ Peças e ferramentas de alta performance\n` +
+                   `✅ Atendimento técnico especializado\n\n` +
+                   `*Podemos confirmar o agendamento?*`;
+        }
+
+        function updateOrder() {
+            let total = 0;
+            let listHtml = "";
+            
+            // Atualiza o equipamento no resumo
+            displayEquipment.innerText = `${acModel.value} - ${acPower.value} BTUs`;
+
+            const rows = document.querySelectorAll('.service-row');
+            rows.forEach((row) => {
+                const desc = row.querySelector('.service-desc').value || "Sem descrição";
+                const price = parseFloat(row.querySelector('.service-price').value) || 0;
+                total += price;
+                if(price > 0 || desc !== "Sem descrição") {
+                    listHtml += `
+                        <div class="flex justify-between text-xs py-1 border-b border-white/5">
+                            <span class="text-slate-300 truncate pr-4">• ${desc}</span>
+                            <span class="font-bold text-sky-400 shrink-0">R$ ${price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        </div>
+                    `;
+                }
+            });
+            liveList.innerHTML = listHtml || '<p class="text-xs text-slate-500 italic text-center">Nenhum item adicionado...</p>';
+            displayTotal.innerText = total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+        }
+
+        function createServiceRow() {
+            const row = document.createElement('div');
+            row.className = 'service-row flex gap-2 items-start';
+            row.innerHTML = `
+                <div class="flex-grow">
+                    <input type="text" list="servicosSugestoes" placeholder="Digite o serviço..." required
+                        class="service-desc input-style w-full px-3 py-2.5 rounded-xl text-xs font-medium">
+                </div>
+                <div class="w-28 flex gap-1 items-center">
+                    <input type="number" step="0.01" placeholder="0,00" required
+                        class="service-price input-style w-full px-3 py-2.5 rounded-xl text-xs font-bold text-center text-sky-700">
+                    <button type="button" class="remove-row text-red-400 p-1 transition-colors hover:text-red-600">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `;
+            container.appendChild(row);
+            lucide.createIcons();
+            row.querySelector('.service-desc').addEventListener('input', updateOrder);
+            row.querySelector('.service-price').addEventListener('input', updateOrder);
+            row.querySelector('.remove-row').addEventListener('click', () => { row.remove(); updateOrder(); });
+            row.querySelector('.service-desc').focus();
+        }
+
+        // Listeners para mudanças no modelo/potência
+        acModel.addEventListener('change', updateOrder);
+        acPower.addEventListener('change', updateOrder);
+
+        btnPreview.addEventListener('click', () => {
+            previewContent.innerText = generateProfessionalMessage();
+            previewModal.style.display = 'flex';
+        });
+
+        closePreview.addEventListener('click', () => { previewModal.style.display = 'none'; });
+        document.getElementById('confirmSend').addEventListener('click', () => { quoteForm.dispatchEvent(new Event('submit')); });
+
+        window.onload = () => {
+            createServiceRow();
+            updateOrder(); // Inicializa o resumo técnico
+        };
+        
+        btnAdd.addEventListener('click', createServiceRow);
+
+        quoteForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const zapCliente = document.getElementById('clientPhone').value;
+            const mensagem = encodeURIComponent(generateProfessionalMessage());
+            const linkDireto = `https://wa.me/${zapCliente}?text=${mensagem}`;
+            
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> ENVIANDO...`;
+            lucide.createIcons();
+            btn.disabled = true;
+
+            setTimeout(() => {
+                window.location.href = linkDireto;
+                btn.innerHTML = `GERAR E ENVIAR WHATSAPP <i data-lucide="send" class="w-5 h-5"></i>`;
+                btn.disabled = false;
+                lucide.createIcons();
+            }, 800);
+        });
+
+        document.addEventListener('gesturestart', (e) => e.preventDefault());
+    </script>
+</body>
+</html>
+
