@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#0ea5e9">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="B.J.C Clima">
+    <meta name="apple-mobile-web-app-title" content="Climatização">
     
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/2933/2933802.png">
@@ -105,7 +105,7 @@
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
-            transform: scale(0.55);
+            transform: scale(0.45);
             transform-origin: top center;
             box-shadow: 0 0 50px rgba(0,0,0,0.3);
         }
@@ -115,7 +115,13 @@
         }
 
         #pdfTemplate {
-            width: 800px; padding: 40px; background: white; color: #1e293b;
+            width: 794px; 
+            min-height: 1123px; 
+            padding: 50px; 
+            background: white; 
+            color: #1e293b;
+            display: flex;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -239,69 +245,75 @@
         
         <div id="pdfPreviewContainer">
             <div id="pdfTemplate">
-                <div style="border-bottom: 4px solid #0ea5e9; padding-bottom: 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-start;">
-                    <div>
-                        <h1 style="font-size: 24px; font-weight: 800; color: #0ea5e9; margin: 0; text-transform: uppercase;">SOLUÇÕES EM AR-CONDICIONADO</h1>
-                        <p style="font-size: 11px; color: #64748b; margin: 5px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">Excelência técnica em climatização</p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="font-size: 13px; font-weight: 700; margin: 0; color: #0f172a;">ORÇAMENTO Nº <span id="pdfId">000</span></p>
-                        <p style="font-size: 11px; color: #64748b; margin: 2px 0 0 0;" id="pdfDate"></p>
-                        <p style="font-size: 11px; color: #64748b; margin: 0;" id="pdfTime"></p>
+                <!-- Cabeçalho Único: SOLUÇÕES EM AR-CONDICIONADO -->
+                <div style="border-bottom: 4px solid #0ea5e9; padding-bottom: 25px; margin-bottom: 40px; text-align: center;">
+                    <h1 style="font-size: 42px; font-weight: 800; color: #0ea5e9; margin: 0; line-height: 1.1; letter-spacing: -1px; text-transform: uppercase;">SOLUÇÕES EM AR-CONDICIONADO</h1>
+                    <div style="display: flex; justify-content: center; gap: 20px; margin-top: 15px;">
+                        <p style="font-size: 12px; font-weight: 800; color: #0f172a; text-transform: uppercase; background: #f1f5f9; padding: 4px 12px; border-radius: 6px;">ORÇAMENTO Nº <span id="pdfId">000</span></p>
+                        <p style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; background: #f1f5f9; padding: 4px 12px; border-radius: 6px;" id="pdfDate"></p>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 30px; background: #f8fafc; padding: 20px; border-radius: 12px; border-left: 4px solid #e2e8f0;">
-                    <p style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; margin-bottom: 5px;">Cliente</p>
-                    <p style="font-size: 16px; font-weight: 700; margin: 0; color: #0f172a;" id="pdfClientName">-</p>
-                    <p style="font-size: 13px; color: #475569; margin: 2px 0 0 0;" id="pdfClientPhone">-</p>
+                <!-- Info Cliente -->
+                <div style="margin-bottom: 30px; background: #f8fafc; padding: 25px; border-radius: 20px; border: 1.5px solid #e2e8f0;">
+                    <p style="font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1.5px;">IDENTIFICAÇÃO DO CLIENTE</p>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <p style="font-size: 22px; font-weight: 800; margin: 0; color: #0f172a;" id="pdfClientName">-</p>
+                        <p style="font-size: 16px; color: #0ea5e9; margin: 0; font-weight: 700;" id="pdfClientPhone">-</p>
+                    </div>
                 </div>
 
-                <div style="margin-bottom: 30px;">
-                    <div style="border: 1px solid #e2e8f0; padding: 15px; border-radius: 12px; display: flex; gap: 20px; background: #fff;">
+                <!-- Info Equipamento -->
+                <div style="margin-bottom: 35px;">
+                    <div style="border: 2px solid #0ea5e9; padding: 20px; border-radius: 20px; background: #fff; display: flex; align-items: center; gap: 20px;">
+                        <div style="background: #0ea5e9; color: white; width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.97-4 9-9 9s-9-4.03-9-9 4-9 9-9 9 4.03 9 9z"></path><path d="M12 2v4"></path><path d="M12 18v4"></path><path d="M4.93 4.93l2.83 2.83"></path><path d="M16.24 16.24l2.83 2.83"></path><path d="M2 12h4"></path><path d="M18 12h4"></path><path d="M4.93 19.07l2.83-2.83"></path><path d="M16.24 7.76l2.83-2.83"></path></svg>
+                        </div>
                         <div>
-                            <span style="font-size: 10px; font-weight: 800; color: #64748b; display: block; text-transform: uppercase; margin-bottom: 2px;">Equipamento / Potência</span>
-                            <strong id="pdfEquip" style="font-size: 14px; color: #0f172a;">-</strong>
+                            <span style="font-size: 10px; font-weight: 800; color: #94a3b8; display: block; text-transform: uppercase; letter-spacing: 1px;">EQUIPAMENTO / ESCOPO</span>
+                            <strong id="pdfEquip" style="font-size: 18px; color: #0f172a; font-weight: 800; text-transform: uppercase;">-</strong>
                         </div>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 40px;">
-                    <table style="width: 100%; border-collapse: collapse;">
+                <!-- Tabela de Serviços -->
+                <div style="flex-grow: 1;">
+                    <table style="width: 100%; border-collapse: separate; border-spacing: 0; border: 1.5px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
                         <thead>
-                            <tr style="background: #0ea5e9; color: white;">
-                                <th style="padding: 14px 12px; text-align: left; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 8px 0 0 8px;">Descrição do Serviço</th>
-                                <th style="padding: 14px 12px; text-align: right; font-size: 11px; font-weight: 800; text-transform: uppercase; border-radius: 0 8px 8px 0;">Valor (R$)</th>
+                            <tr style="background: #0f172a; color: white;">
+                                <th style="padding: 18px 25px; text-align: left; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Descrição Detalhada do Serviço</th>
+                                <th style="padding: 18px 25px; text-align: right; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">Subtotal</th>
                             </tr>
                         </thead>
                         <tbody id="pdfTableBody"></tbody>
                     </table>
                 </div>
 
-                <div style="display: flex; justify-content: flex-end; margin-bottom: 50px;">
-                    <div style="background: #0f172a; color: white; padding: 20px 40px; border-radius: 16px; text-align: right; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);">
-                        <span style="font-size: 10px; font-weight: 800; color: #94a3b8; display: block; text-transform: uppercase; margin-bottom: 4px;">Valor Total</span>
-                        <strong style="font-size: 26px; color: #0ea5e9;">R$ <span id="pdfTotal">0,00</span></strong>
+                <!-- Total -->
+                <div style="display: flex; justify-content: flex-end; margin-top: 40px; margin-bottom: 50px;">
+                    <div style="background: #0ea5e9; color: white; padding: 30px 45px; border-radius: 25px; text-align: right; min-width: 280px; box-shadow: 0 15px 30px -10px rgba(14, 165, 233, 0.4);">
+                        <span style="font-size: 11px; font-weight: 800; color: #fff; display: block; text-transform: uppercase; margin-bottom: 10px; letter-spacing: 2.5px; opacity: 0.9;">Valor Total Final</span>
+                        <strong style="font-size: 38px; color: #fff; font-weight: 800; line-height: 1;">R$ <span id="pdfTotal">0,00</span></strong>
                     </div>
                 </div>
 
-                <div style="font-size: 11px; color: #64748b; border-top: 2px solid #f1f5f9; padding-top: 15px;">
-                    <div style="display: flex; justify-content: space-between;">
-                        <div>
-                            <p style="font-weight: 700; color: #475569;">• Validade do Orçamento: 07 dias</p>
-                            <p style="font-weight: 700; color: #475569;">• Garantia de Serviços: 90 dias</p>
-                        </div>
-                        <div style="text-align: right;">
-                            <p style="color: #94a3b8; font-style: italic;">Gerado via Painel Digital em <span id="footerDateTime"></span></p>
-                        </div>
+                <!-- Rodapé -->
+                <div style="font-size: 12px; color: #64748b; border-top: 2px solid #f1f5f9; padding-top: 25px; display: flex; justify-content: space-between; align-items: flex-end;">
+                    <div style="line-height: 1.8;">
+                        <p style="margin: 0; font-weight: 700; color: #1e293b;">• Validade da Proposta: 07 dias corridos</p>
+                        <p style="margin: 0; font-weight: 700; color: #1e293b;">• Garantia Técnica: 90 dias (Mão de Obra e Peças instaladas)</p>
+                        <p style="margin: 10px 0 0 0; font-weight: 800; color: #0ea5e9; text-transform: uppercase; font-size: 10px; letter-spacing: 1px;">ORÇAMENTO TÉCNICO AUTENTICADO</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <p id="footerTime" style="margin: 0; font-weight: 700; color: #94a3b8; font-size: 10px;"></p>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="w-full max-w-md px-6 mt-[-60px] pb-10 z-50">
-            <button id="btnConfirmGenerate" class="w-full py-4 bg-white text-sky-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3">
-                CONFIRMAR E SALVAR PDF <i data-lucide="check" class="w-5 h-5"></i>
+            <button id="btnConfirmGenerate" class="w-full py-4 bg-white text-sky-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                GERAR E BAIXAR PDF <i data-lucide="download" class="w-5 h-5"></i>
             </button>
         </div>
     </div>
@@ -321,12 +333,12 @@
             <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
                 <i data-lucide="check-circle" class="w-8 h-8"></i>
             </div>
-            <h2 class="text-lg font-black text-slate-800 mb-2 uppercase">FINALIZADO!</h2>
-            <p class="text-xs text-slate-500 mb-6">PDF baixado. Notifique o cliente agora:</p>
+            <h2 class="text-lg font-black text-slate-800 mb-2 uppercase">ORÇAMENTO GERADO!</h2>
+            <p class="text-xs text-slate-500 mb-6">O arquivo PDF já está no seu dispositivo.</p>
             <button id="btnShareZap" class="w-full py-4 bg-green-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 mb-3">
-                NOTIFICAR NO WHATSAPP <i data-lucide="send" class="w-4 h-4"></i>
+                NOTIFICAR CLIENTE (WHATSAPP) <i data-lucide="send" class="w-4 h-4"></i>
             </button>
-            <button id="btnCloseSuccess" class="text-slate-400 text-[9px] font-bold uppercase">VOLTAR AO INÍCIO</button>
+            <button id="btnCloseSuccess" class="text-slate-400 text-[9px] font-bold uppercase p-2">FECHAR</button>
         </div>
     </div>
 
@@ -335,7 +347,8 @@
         const displayTotal = document.getElementById('displayTotal');
         const acModel = document.getElementById('acModel');
         const acPower = document.getElementById('acPower');
-        let orçamentos = JSON.parse(localStorage.getItem('bjc_pdf_history_v3')) || [];
+        
+        let orçamentos = JSON.parse(localStorage.getItem('bjc_history_final')) || [];
 
         function updateOrder() {
             let total = 0;
@@ -352,11 +365,11 @@
                 <div class="flex items-center gap-3">
                     <div class="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center text-sky-500"><i data-lucide="wrench" class="w-4 h-4"></i></div>
                     <input type="text" placeholder="Serviço..." value="${name}" class="service-desc flex-grow bg-transparent text-sm font-bold text-slate-700 outline-none">
-                    <button type="button" class="remove-row text-slate-300"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    <button type="button" class="remove-row text-slate-300 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                 </div>
                 <div class="flex items-center justify-between pl-11">
-                    <span class="text-[9px] font-black text-slate-300 uppercase">Preço R$</span>
-                    <input type="number" step="0.01" value="${price}" class="service-price w-24 px-3 py-1.5 bg-slate-50 border-none rounded-xl text-xs font-black text-right outline-none">
+                    <span class="text-[9px] font-black text-slate-300 uppercase">Valor R$</span>
+                    <input type="number" step="0.01" value="${price}" class="service-price w-24 px-3 py-1.5 bg-slate-50 border-none rounded-xl text-xs font-black text-right outline-none text-sky-600">
                 </div>
             `;
             container.appendChild(card);
@@ -374,7 +387,7 @@
         function showPreview() {
             const client = document.getElementById('clientName').value;
             const phone = document.getElementById('clientPhone').value;
-            if (!client || !phone) return alert("Preencha o Nome e WhatsApp do cliente!");
+            if (!client || !phone) return alert("Preencha o Nome e WhatsApp.");
             
             const now = new Date();
             const dateStr = now.toLocaleDateString('pt-BR');
@@ -382,8 +395,7 @@
 
             document.getElementById('pdfId').innerText = Math.floor(Math.random() * 9000) + 1000;
             document.getElementById('pdfDate').innerText = dateStr;
-            document.getElementById('pdfTime').innerText = timeStr;
-            document.getElementById('footerDateTime').innerText = `${dateStr} às ${timeStr}`;
+            document.getElementById('footerTime').innerText = `Emitido em: ${dateStr} às ${timeStr}`;
             document.getElementById('pdfClientName').innerText = client;
             document.getElementById('pdfClientPhone').innerText = phone;
             document.getElementById('pdfEquip').innerText = `${acModel.value} - ${acPower.value} BTUs`;
@@ -398,14 +410,14 @@
                 if(desc) {
                     hasService = true;
                     tbody.innerHTML += `
-                        <tr style="border-bottom: 1px solid #f1f5f9;">
-                            <td style="padding: 14px 12px; font-size: 13px; color: #1e293b;">${desc}</td>
-                            <td style="padding: 14px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #0f172a;">R$ ${price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                        <tr>
+                            <td style="padding: 18px 25px; font-size: 14px; color: #334155; font-weight: 600; border-bottom: 1px solid #f1f5f9;">${desc}</td>
+                            <td style="padding: 18px 25px; font-size: 15px; font-weight: 800; text-align: right; color: #0f172a; border-bottom: 1px solid #f1f5f9;">R$ ${price.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
                         </tr>`;
                 }
             });
 
-            if (!hasService) return alert("Adicione pelo menos um serviço!");
+            if (!hasService) return alert("Adicione serviços.");
 
             document.getElementById('previewModal').style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -413,23 +425,13 @@
 
         async function finalizePDF() {
             const client = document.getElementById('clientName').value;
-            const phone = document.getElementById('clientPhone').value;
             const element = document.getElementById('pdfTemplate');
             
-            // Capturar serviços para o histórico
-            const services = [];
-            document.querySelectorAll('.service-card').forEach(row => {
-                services.push({
-                    desc: row.querySelector('.service-desc').value,
-                    price: row.querySelector('.service-price').value
-                });
-            });
-
             const opt = { 
-                margin: 0, 
+                margin: [0, 0, 0, 0], 
                 filename: `Orcamento_${client.replace(/\s+/g,'_')}.pdf`, 
-                image: {type:'jpeg', quality:0.98}, 
-                html2canvas: {scale:2}, 
+                image: {type:'jpeg', quality:1.0}, 
+                html2canvas: {scale:3, useCORS: true, letterRendering: true, backgroundColor: '#ffffff'}, 
                 jsPDF: {unit:'mm', format:'a4', orientation:'portrait'} 
             };
             
@@ -438,38 +440,14 @@
             orçamentos.unshift({ 
                 id: Date.now(), 
                 cliente: client, 
-                whatsapp: phone,
-                modelo: acModel.value,
-                potencia: acPower.value,
-                servicos: services,
                 total: displayTotal.innerText, 
-                data: new Date().toLocaleDateString('pt-BR'), 
-                status: 'gerado' 
+                data: new Date().toLocaleDateString('pt-BR')
             });
-            localStorage.setItem('bjc_pdf_history_v3', JSON.stringify(orçamentos));
+            localStorage.setItem('bjc_history_final', JSON.stringify(orçamentos));
             
             document.getElementById('previewModal').style.display = 'none';
             document.getElementById('successModal').style.display = 'flex';
         }
-
-        // Função para carregar orçamento do histórico
-        window.loadQuote = function(id) {
-            const q = orçamentos.find(o => o.id === id);
-            if(!q) return;
-
-            document.getElementById('clientName').value = q.cliente;
-            document.getElementById('clientPhone').value = q.whatsapp;
-            document.getElementById('acModel').value = q.modelo;
-            document.getElementById('acPower').value = q.potencia;
-
-            container.innerHTML = "";
-            q.servicos.forEach(s => {
-                createServiceRow(s.desc, s.price);
-            });
-
-            document.getElementById('historyDrawer').classList.remove('open');
-            showPreview();
-        };
 
         document.getElementById('btnPreview').onclick = showPreview;
         document.getElementById('btnConfirmGenerate').onclick = finalizePDF;
@@ -481,27 +459,22 @@
         document.getElementById('btnShareZap').onclick = () => {
             const client = document.getElementById('clientName').value;
             const phone = document.getElementById('clientPhone').value;
-            window.open(`https://wa.me/55${phone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá *'+client+'*! Sou o seu técnico. O orçamento profissional de climatização ficou pronto e o PDF já foi gerado. Estou te enviando agora!')}`, '_blank');
+            window.open(`https://wa.me/55${phone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá *'+client+'*! Seu orçamento de ar-condicionado já está pronto. Estou te enviando o PDF em seguida!')}`, '_blank');
         };
 
         function renderHistory() {
             const list = document.getElementById('historyList');
             if(orçamentos.length === 0) {
-                list.innerHTML = `<p class="text-center py-10 opacity-30 text-xs">Sem registros</p>`;
+                list.innerHTML = `<p class="text-center py-10 opacity-30 text-[10px] font-bold uppercase tracking-widest">Vazio</p>`;
                 return;
             }
             list.innerHTML = orçamentos.map(o => `
-                <div onclick="loadQuote(${o.id})" class="bg-slate-50 p-4 rounded-2xl border border-slate-100 flex justify-between items-center active:scale-95 transition-transform cursor-pointer">
+                <div class="bg-white p-4 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
                     <div>
                         <p class="text-[10px] font-black uppercase text-slate-800">${o.cliente}</p>
                         <p class="text-[8px] text-slate-400 font-bold">${o.data}</p>
                     </div>
-                    <div class="text-right">
-                        <p class="text-xs font-black text-sky-600">R$ ${o.total}</p>
-                        <span class="status-badge status-pendente flex items-center gap-1 justify-end">
-                            <i data-lucide="download" class="w-2 h-2"></i> Abrir
-                        </span>
-                    </div>
+                    <p class="text-xs font-black text-sky-600">R$ ${o.total}</p>
                 </div>
             `).join('');
             lucide.createIcons();
@@ -511,4 +484,3 @@
     </script>
 </body>
 </html>
-
