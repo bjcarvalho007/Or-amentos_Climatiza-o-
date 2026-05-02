@@ -78,12 +78,13 @@
         .service-chip { transition: all 0.2s ease; cursor: pointer; border: 1.5px solid #f1f5f9; white-space: nowrap; }
         .service-chip:active { transform: scale(0.95); background-color: #e0f2fe; }
 
+        /* AJUSTE DO Z-INDEX DO TOAST PARA FICAR SEMPRE NA FRENTE */
         #errorToast {
             position: fixed;
             bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 200;
+            z-index: 999; /* Valor altíssimo para sobrepor modais */
             transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
             opacity: 0;
             padding-bottom: env(safe-area-inset-bottom);
@@ -180,7 +181,6 @@
                     <button onclick="verifyActivationCode('infoActivationCode')" class="w-full py-2 bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest">ATIVAR AGORA</button>
                 </div>
             </div>
-            <span id="displayDeviceId" style="display:none"></span>
         </div>
     </div>
 
@@ -205,14 +205,14 @@
         </div>
     </div>
 
-    <!-- Toast de Erro -->
+    <!-- Toast de Mensagens (Erro ou Sucesso) -->
     <div id="errorToast" class="w-[90%] max-w-xs">
-        <div class="bg-white/90 backdrop-blur-xl border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 flex items-center gap-4">
-            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
-                <i data-lucide="alert-circle" class="text-red-600 w-6 h-6"></i>
+        <div id="toastContainer" class="bg-white/90 backdrop-blur-xl border-l-4 border-red-500 shadow-2xl rounded-2xl p-4 flex items-center gap-4">
+            <div id="toastIconBg" class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                <i id="toastIcon" data-lucide="alert-circle" class="text-red-600 w-6 h-6"></i>
             </div>
             <div>
-                <h4 class="text-[10px] font-black uppercase tracking-widest text-red-600">Atenção Técnico</h4>
+                <h4 id="toastTitle" class="text-[10px] font-black uppercase tracking-widest text-red-600">Atenção Técnico</h4>
                 <p id="errorMessage" class="text-xs font-bold text-slate-700">Ação necessária.</p>
             </div>
         </div>
@@ -439,8 +439,14 @@
         const businessInput = document.getElementById('businessName');
         const businessPhoneInput = document.getElementById('businessPhone');
         const businessCnpjInput = document.getElementById('businessCnpj');
+        
+        // Elementos do Toast Atualizados
         const errorToast = document.getElementById('errorToast');
         const errorMessage = document.getElementById('errorMessage');
+        const toastTitle = document.getElementById('toastTitle');
+        const toastIcon = document.getElementById('toastIcon');
+        const toastIconBg = document.getElementById('toastIconBg');
+        const toastContainer = document.getElementById('toastContainer');
         
         const confirmModal = document.getElementById('confirmModal');
         const btnConfirmDelete = document.getElementById('btnConfirmDelete');
@@ -511,7 +517,7 @@
             const whats = businessPhoneInput.value.trim();
 
             if (!nome || !whats) {
-                showError("Preencha seu Nome e WhatsApp profissional acima para continuar.");
+                showToast("Preencha seu Nome e WhatsApp profissional acima para continuar.", "error");
                 window.scrollTo({ top: 0, behavior: 'smooth' });
                 return;
             }
@@ -523,7 +529,7 @@
             const whats = businessPhoneInput.value.trim();
             
             if (!nome || !whats) {
-                showError("Preencha seu Nome e WhatsApp profissional acima.");
+                showToast("Preencha seu Nome e WhatsApp profissional acima.", "error");
                 return false;
             }
 
@@ -538,6 +544,33 @@
             document.getElementById('infoPremiumModal').style.display = 'flex';
         }
 
+        // FUNÇÃO DE TOAST REFORMULADA PARA ERRO E SUCESSO
+        function showToast(msg, type = "error") {
+            errorMessage.innerText = msg;
+            
+            if(type === "success") {
+                toastContainer.classList.replace('border-red-500', 'border-green-500');
+                toastIconBg.classList.replace('bg-red-100', 'bg-green-100');
+                toastIcon.classList.replace('text-red-600', 'text-green-600');
+                toastTitle.classList.replace('text-red-600', 'text-green-600');
+                toastTitle.innerText = "Sucesso!";
+                toastIcon.setAttribute('data-lucide', 'check-circle');
+            } else {
+                toastContainer.classList.replace('border-green-500', 'border-red-500');
+                toastIconBg.classList.replace('bg-green-100', 'bg-red-100');
+                toastIcon.classList.replace('text-green-600', 'text-red-600');
+                toastTitle.classList.replace('text-green-600', 'text-red-600');
+                toastTitle.innerText = "Atenção Técnico";
+                toastIcon.setAttribute('data-lucide', 'alert-circle');
+            }
+            
+            lucide.createIcons();
+            errorToast.classList.add('show');
+            if (window.navigator.vibrate) window.navigator.vibrate(type === "error" ? 50 : 20);
+            
+            setTimeout(() => { errorToast.classList.remove('show'); }, 4000);
+        }
+
         function verifyActivationCode(inputId) {
             const input = document.getElementById(inputId);
             const code = input.value.toUpperCase();
@@ -550,10 +583,11 @@
                 updatePlanStatus();
                 document.getElementById('premiumModal').style.display = 'none';
                 document.getElementById('infoPremiumModal').style.display = 'none';
-                showError("VERSÃO PRO ATIVADA!");
+                
+                showToast("VERSÃO PRO ATIVADA COM SUCESSO!", "success");
                 notifySupportActivation();
             } else {
-                showError("CÓDIGO INVÁLIDO PARA ESTE DISPOSITIVO!");
+                showToast("CÓDIGO INVÁLIDO PARA ESTE DISPOSITIVO!", "error");
             }
         }
 
@@ -562,13 +596,6 @@
             setTimeout(() => {
                 window.open(`https://wa.me/${SUPORTE_WHATSAPP}?text=${msgSuporte}`, '_blank');
             }, 1500);
-        }
-
-        function showError(msg) {
-            errorMessage.innerText = msg;
-            errorToast.classList.add('show');
-            if (window.navigator.vibrate) window.navigator.vibrate(50);
-            setTimeout(() => { errorToast.classList.remove('show'); }, 3000);
         }
 
         function createServiceRow(name = "", price = "", model = "Split Hi-Wall", power = "9.000") {
@@ -678,20 +705,22 @@
                 if (telefone && telefone.length >= 8) {
                     const msg = encodeURIComponent(`Olá ${cliente}, segue em anexo o seu orçamento profissional gerado via GERADORPRO.`);
                     window.location.href = `whatsapp://send?phone=55${telefone.replace(/\D/g,'')}&text=${msg}`;
-                } else { showError("WhatsApp do cliente não informado."); }
+                } else { showToast("WhatsApp do cliente não informado.", "error"); }
             }
             document.getElementById('previewModal').style.display = 'none';
         }
 
         document.getElementById('btnOpenPreview').onclick = () => {
+            // VERIFICAÇÃO DE LIMITE: MUDADO APENAS ESTA LÓGICA
             if(!isPremium && orçamentos.length >= 3) {
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
             }
+            
             const cliente = document.getElementById('clientName').value;
             const hasServices = document.querySelectorAll('.service-row-item').length > 0;
-            if(!cliente) return showError("Nome do cliente obrigatório.");
-            if(!hasServices) return showError("Adicione serviços ao orçamento.");
+            if(!cliente) return showToast("Nome do cliente obrigatório.", "error");
+            if(!hasServices) return showToast("Adicione serviços ao orçamento.", "error");
             populateTemplate();
             const canvas = document.getElementById('pdf-preview-canvas');
             canvas.innerHTML = '';
