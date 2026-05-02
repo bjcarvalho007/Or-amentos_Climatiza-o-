@@ -478,6 +478,9 @@
 
         let orçamentos = JSON.parse(localStorage.getItem('bjc_orcamentos')) || [];
         
+        // NOVA LÓGICA DE CONTAGEM PERSISTENTE PARA BLOQUEIO
+        let totalUsageCounter = parseInt(localStorage.getItem('bjc_usage_counter')) || 0;
+
         const modelos = ["Split Hi-Wall", "Split Inverter", "Multi Split", "Piso Teto", "Cassete", "ACJ", "Duto", "Portátil"];
         const potencias = ["9.000", "12.000", "18.000", "22.000", "24.000", "30.000", "36.000", "60.000"];
 
@@ -699,8 +702,14 @@
             document.querySelectorAll('.service-row-item').forEach(row => {
                 items.push({ desc: row.querySelector('.service-desc').value, model: row.querySelector('.service-model').value, power: row.querySelector('.service-power').value, price: row.querySelector('.service-price').value });
             });
+            
+            // Incrementa contador global de uso ao salvar um novo
+            totalUsageCounter++;
+            localStorage.setItem('bjc_usage_counter', totalUsageCounter);
+
             orçamentos.unshift({ id: Date.now(), cliente, telefone, total: displayTotal.innerText, data: new Date().toLocaleString('pt-BR', { dateStyle: 'short' }), items });
             localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
+            
             if (sendToZap) {
                 if (telefone && telefone.length >= 8) {
                     const msg = encodeURIComponent(`Olá ${cliente}, segue em anexo o seu orçamento profissional gerado via GERADORPRO.`);
@@ -711,8 +720,9 @@
         }
 
         document.getElementById('btnOpenPreview').onclick = () => {
-            // VERIFICAÇÃO DE LIMITE: MUDADO APENAS ESTA LÓGICA
-            if(!isPremium && orçamentos.length >= 3) {
+            // REGRA: Usuário FREE que já gerou 3 orçamentos (totalUsageCounter) 
+            // não pode mais visualizar novos orçamentos, nem carregar do histórico.
+            if(!isPremium && totalUsageCounter >= 3) {
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
             }
@@ -758,12 +768,28 @@
         window.deleteFromHistory = (id) => { idToDelete = id; confirmModal.style.display = 'flex'; };
         btnCancelDelete.onclick = () => { confirmModal.style.display = 'none'; idToDelete = null; };
         btnConfirmDelete.onclick = () => { if (idToDelete) { orçamentos = orçamentos.filter(x => x.id !== idToDelete); localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos)); renderHistory(); confirmModal.style.display = 'none'; idToDelete = null; } };
-        window.loadFromHistory = (id) => { const o = orçamentos.find(x => x.id === id); if(!o) return; document.getElementById('clientName').value = o.cliente; document.getElementById('clientPhone').value = o.telefone; container.innerHTML = ""; o.items.forEach(i => createServiceRow(i.desc, i.price, i.model, i.power)); document.getElementById('historyDrawer').classList.remove('open'); updateOrder(); };
+        
+        window.loadFromHistory = (id) => {
+            // Bloqueio também ao tentar abrir do histórico se for free e já tiver usado o limite
+            if(!isPremium && totalUsageCounter >= 3) {
+                document.getElementById('historyDrawer').classList.remove('open');
+                document.getElementById('premiumModal').style.display = 'flex';
+                return;
+            }
+            const o = orçamentos.find(x => x.id === id); 
+            if(!o) return; 
+            document.getElementById('clientName').value = o.cliente; 
+            document.getElementById('clientPhone').value = o.telefone; 
+            container.innerHTML = ""; 
+            o.items.forEach(i => createServiceRow(i.desc, i.price, i.model, i.power)); 
+            document.getElementById('historyDrawer').classList.remove('open'); 
+            updateOrder(); 
+        };
+        
         document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
 
         window.onload = () => { lucide.createIcons(); updateOrder(); updatePlanStatus(); };
     </script>
 </body>
 </html>
-
 
