@@ -5,22 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- CONFIGURAÇÕES DE ÍCONE PARA APP (ANDROID E IOS) -->
-    <!-- Este bloco garante que o ícone do sistema seja o logo do OrcaPRO e não o ícone do navegador -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ea5e9'/><path d='M50 15V85M15 50H85M24.75 24.75L75.25 75.25M24.75 75.25L75.25 24.75' stroke='white' stroke-width='8' stroke-linecap='round'/><path d='M50 25L45 35M50 25L55 35M50 75L45 65M50 75L55 65M25 50L35 45M25 50L35 55M75 50L65 45L75 50L65 55' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
     
-    <!-- iOS Icon (iPhone/iPad) -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230ea5e9'/><path d='M50 15V85M15 50H85M24.75 24.75L75.25 75.25M24.75 75.25L75.25 24.75' stroke='white' stroke-width='8' stroke-linecap='round'/><path d='M50 25L45 35M50 25L55 35M50 75L45 65M50 75L55 65M25 50L35 45M25 50L35 55M75 50L65 45L75 50L65 55' stroke='white' stroke-width='6' stroke-linecap='round'/></svg>">
     
-    <!-- Meta Tags para Transformar em APP nativo -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="GERADOR.PRO">
+    <meta name="apple-mobile-web-app-title" content="GERADORPRO">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="GERADOR.PRO">
+    <meta name="application-name" content="GERADORPRO">
     <meta name="theme-color" content="#0ea5e9">
     <meta name="description" content="Sistema Profissional de Orçamentos para Climatização">
 
-    <title>Gerador de Orçamentos PRO</title>
+    <title>GERADORPRO - Orçamentos</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -101,9 +98,112 @@
             from { transform: scale(0.8); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
+
+        .badge-free { background: #94a3b8; color: white; padding: 2px 8px; border-radius: 99px; font-size: 8px; font-weight: 900; }
+        .badge-pro { background: linear-gradient(90deg, #f59e0b, #fbbf24); color: white; padding: 2px 8px; border-radius: 99px; font-size: 8px; font-weight: 900; }
+
+        /* Floating Button Style */
+        .btn-floating-premium {
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 45;
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse-premium 2s infinite;
+            border: 2px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        @keyframes pulse-premium {
+            0% { transform: scale(1); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+            50% { transform: scale(1.05); box-shadow: 0 15px 35px rgba(245, 158, 11, 0.6); }
+            100% { transform: scale(1); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+
+    <!-- BOTÃO FLUTUANTE PREMIUM -->
+    <button id="floatingPremiumBtn" class="btn-floating-premium active:scale-95" onclick="handlePremiumClick()">
+        <i data-lucide="crown" class="w-4 h-4"></i>
+        <span>Seja Premium</span>
+    </button>
+
+    <!-- MODAL INFORMATIVO PREMIUM -->
+    <div id="infoPremiumModal" class="modal-overlay" style="z-index: 500;">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-sm text-center space-y-6 shadow-2xl relative">
+            <button onclick="document.getElementById('infoPremiumModal').style.display='none'" class="absolute top-6 right-6 p-2 text-slate-300">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <div class="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="crown" class="text-amber-500 w-12 h-12"></i>
+            </div>
+            <div class="space-y-2">
+                <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight">GERADORPRO PREMIUM</h3>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Acesso Vitalício ilimitado</p>
+            </div>
+            
+            <div class="bg-slate-50 rounded-3xl p-6 text-left space-y-4">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle-2" class="text-green-500 w-5 h-5"></i>
+                    <p class="text-xs font-bold text-slate-600 uppercase">ORÇAMENTOS ILIMITADOS</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle-2" class="text-green-500 w-5 h-5"></i>
+                    <p class="text-xs font-bold text-slate-600 uppercase">MARCA D'ÁGUA COM SEU NOME</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <i data-lucide="check-circle-2" class="text-green-500 w-5 h-5"></i>
+                    <p class="text-xs font-bold text-slate-600 uppercase">REMOÇÃO DE ANÚNCIOS</p>
+                </div>
+                <div class="pt-2 border-t border-slate-200">
+                    <p class="text-3xl font-black text-slate-800">R$ 19,99</p>
+                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Pagamento Único</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <a id="btnBuyPremium" href="#" onclick="return handleBuyRedirect()" target="_blank" class="block w-full py-5 bg-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-100 active:scale-95 transition-all">CONTRATAR AGORA</a>
+                <div class="pt-4 border-t border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-3">Já possui seu código?</p>
+                    <input type="text" id="infoActivationCode" placeholder="INSERIR CÓDIGO" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 text-center text-xs font-black uppercase mb-2">
+                    <button onclick="verifyActivationCode('infoActivationCode')" class="w-full py-2 bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase tracking-widest">ATIVAR AGORA</button>
+                </div>
+            </div>
+            <span id="displayDeviceId" style="display:none"></span>
+        </div>
+    </div>
+
+    <!-- MODAL DE ATIVAÇÃO PREMIUM (BLOQUEIO 3 USOS) -->
+    <div id="premiumModal" class="modal-overlay" style="z-index: 400;">
+        <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-xs text-center space-y-6 shadow-2xl">
+            <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
+                <i data-lucide="crown" class="text-amber-500 w-10 h-10"></i>
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-800 uppercase tracking-tight">LIMITE ATINGIDO</h3>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Você atingiu o limite gratuito de 3 orçamentos. Torne-se PRO para uso ilimitado.</p>
+            </div>
+            <div class="space-y-3">
+                <a id="btnBuyPremiumModal" href="#" onclick="return handleBuyRedirect()" target="_blank" class="block w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">ASSINAR POR R$ 19,99</a>
+                <div class="pt-4 border-t">
+                    <input type="text" id="activationCode" placeholder="CÓDIGO DE ATIVAÇÃO" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 text-center text-xs font-black uppercase mb-2">
+                    <button onclick="verifyActivationCode('activationCode')" class="w-full py-2 bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase">ATIVAR CÓDIGO</button>
+                </div>
+                <button onclick="document.getElementById('premiumModal').style.display='none'" class="text-[9px] font-bold text-slate-300 uppercase underline">Depois</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Toast de Erro -->
     <div id="errorToast" class="w-[90%] max-w-xs">
@@ -113,7 +213,7 @@
             </div>
             <div>
                 <h4 class="text-[10px] font-black uppercase tracking-widest text-red-600">Atenção Técnico</h4>
-                <p id="errorMessage" class="text-xs font-bold text-slate-700">Preencha o nome do cliente.</p>
+                <p id="errorMessage" class="text-xs font-bold text-slate-700">Ação necessária.</p>
             </div>
         </div>
     </div>
@@ -142,7 +242,10 @@
                 <div class="w-8 h-8 hero-gradient rounded-lg flex items-center justify-center shadow-lg">
                     <i data-lucide="snowflake" class="text-white w-5 h-5"></i>
                 </div>
-                <span class="text-[10px] font-black tracking-tighter text-slate-400 uppercase">GERADOR.PRO</span>
+                <div>
+                    <span class="text-[10px] font-black tracking-tighter text-slate-400 uppercase block">GERADORPRO</span>
+                    <span id="planBadge" class="badge-free">FREE</span>
+                </div>
             </div>
             <button id="btnOpenHistory" class="relative p-2 text-slate-500 hover:text-sky-600 transition-colors flex items-center gap-2 active:scale-90">
                 <span class="text-[10px] font-bold uppercase block tracking-widest text-slate-400">Histórico</span>
@@ -167,6 +270,7 @@
                     <h3 class="text-[9px] font-black text-sky-600 uppercase tracking-[0.2em] ml-2">Dados do Profissional</h3>
                     <div class="flex flex-col gap-2">
                         <input type="text" id="businessName" placeholder="Seu Nome / Empresa" class="input-style w-full px-4 py-3 rounded-2xl text-xs font-bold text-center border-sky-200 bg-sky-50/10">
+                        <input type="number" id="businessPhone" placeholder="Seu WhatsApp" class="input-style w-full px-4 py-3 rounded-2xl text-xs font-bold text-center border-sky-100 bg-sky-50/20">
                         <input type="text" id="businessCnpj" placeholder="Seu CNPJ ou CPF" class="input-style w-full px-4 py-2 rounded-xl text-[10px] font-bold text-center border-slate-100 bg-slate-50/50">
                     </div>
                 </div>
@@ -220,7 +324,7 @@
             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Todos Direitos Reservados</p>
             <p class="text-[11px] font-black text-slate-500 uppercase tracking-[0.2em]">DEV • B.J.C</p>
         </div>
-        <a href="https://wa.me/5563992092699?text=Ol%C3%A1!%20Sou%20um%20t%C3%A9cnico%20profissional%20e%20usu%C3%A1rio%20do%20OrcaPRO.%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20e%20fortalecer%20nossa%20parceria!" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] px-6 py-3 rounded-full transition-all">
+        <a href="https://wa.me/5563992092699?text=Ol%C3%A1!%20Sou%20um%20t%C3%A9cnico%20profissional%20e%20usu%C3%A1rio%20do%20GERADORPRO.%20Gostaria%20de%20tirar%20uma%20d%C3%BAvida%20e%20fortalecer%20nossa%20parceria!" target="_blank" class="inline-flex items-center gap-2 bg-[#25D366]/10 hover:bg-[#25D366]/20 text-[#128C7E] px-6 py-3 rounded-full transition-all">
             <i data-lucide="message-circle" class="w-4 h-4 fill-[#25D366] text-[#25D366]"></i>
             <span class="text-[10px] font-black uppercase tracking-widest text-[#128C7E]">Suporte Desenvolvedor</span>
         </a>
@@ -270,6 +374,10 @@
                     <span style="font-weight: 800; font-size: 14px; color: #475569; text-transform: uppercase; margin-right: 20px;">Valor Total</span>
                     <span id="pdf-total" style="font-weight: 800; font-size: 24px; color: #0ea5e9;"></span>
                 </div>
+            </div>
+
+            <div id="pdf-watermark" style="text-align: center; margin-top: 40px; border-top: 1px solid #f1f5f9; padding-top: 15px; color: #cbd5e1; font-size: 9px; font-weight: 800; letter-spacing: 2px;">
+                GERADO POR GERADORPRO FREE • ADQUIRA A VERSÃO PREMIUM
             </div>
         </div>
     </div>
@@ -329,6 +437,7 @@
         const btnAdd = document.getElementById('addService');
         const displayTotal = document.getElementById('displayTotal');
         const businessInput = document.getElementById('businessName');
+        const businessPhoneInput = document.getElementById('businessPhone');
         const businessCnpjInput = document.getElementById('businessCnpj');
         const errorToast = document.getElementById('errorToast');
         const errorMessage = document.getElementById('errorMessage');
@@ -338,15 +447,122 @@
         const btnCancelDelete = document.getElementById('btnCancelDelete');
         let idToDelete = null;
 
+        const SUPORTE_WHATSAPP = "5563992092699";
+        
+        function getDeviceId() {
+            let id = localStorage.getItem('bjc_device_id');
+            if (!id) {
+                const platform = navigator.platform;
+                const random = Math.random().toString(36).substring(2, 6).toUpperCase();
+                id = `PRO-${platform.substring(0,3)}-${random}`;
+                localStorage.setItem('bjc_device_id', id);
+            }
+            return id;
+        }
+
+        const DEVICE_ID = getDeviceId();
+        let isPremium = localStorage.getItem('bjc_is_premium') === 'true';
+        let premiumOwnerId = localStorage.getItem('bjc_premium_owner_id');
+
+        if (isPremium && premiumOwnerId !== DEVICE_ID) {
+            isPremium = false;
+            localStorage.removeItem('bjc_is_premium');
+            localStorage.removeItem('bjc_premium_owner_id');
+        }
+
         let orçamentos = JSON.parse(localStorage.getItem('bjc_orcamentos')) || [];
+        
         const modelos = ["Split Hi-Wall", "Split Inverter", "Multi Split", "Piso Teto", "Cassete", "ACJ", "Duto", "Portátil"];
         const potencias = ["9.000", "12.000", "18.000", "22.000", "24.000", "30.000", "36.000", "60.000"];
 
         businessInput.value = localStorage.getItem('bjc_business_name') || "";
+        businessPhoneInput.value = localStorage.getItem('bjc_business_phone') || "";
         businessCnpjInput.value = localStorage.getItem('bjc_business_cnpj') || "";
 
         businessInput.oninput = () => localStorage.setItem('bjc_business_name', businessInput.value);
+        businessPhoneInput.oninput = () => localStorage.setItem('bjc_business_phone', businessPhoneInput.value);
         businessCnpjInput.oninput = () => localStorage.setItem('bjc_business_cnpj', businessCnpjInput.value);
+
+        function updatePlanStatus() {
+            const badge = document.getElementById('planBadge');
+            const watermark = document.getElementById('pdf-watermark');
+            const floatingBtn = document.getElementById('floatingPremiumBtn');
+            const business = businessInput.value || "TÉCNICO RESPONSÁVEL";
+            
+            if(isPremium) {
+                badge.innerText = "PRO";
+                badge.className = "badge-pro";
+                watermark.style.display = 'block';
+                watermark.innerText = `GERADO POR: ${business.toUpperCase()}`;
+                watermark.style.color = '#94a3b8';
+                floatingBtn.style.display = 'none';
+            } else {
+                badge.innerText = "FREE";
+                badge.className = "badge-free";
+                watermark.style.display = 'block';
+                watermark.innerText = "GERADO POR GERADORPRO FREE • ADQUIRA A VERSÃO PREMIUM";
+                watermark.style.color = '#cbd5e1';
+                floatingBtn.style.display = 'flex';
+            }
+        }
+
+        function handlePremiumClick() {
+            const nome = businessInput.value.trim();
+            const whats = businessPhoneInput.value.trim();
+
+            if (!nome || !whats) {
+                showError("Preencha seu Nome e WhatsApp profissional acima para continuar.");
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+            openPremiumInfo();
+        }
+
+        function handleBuyRedirect() {
+            const nome = businessInput.value.trim();
+            const whats = businessPhoneInput.value.trim();
+            
+            if (!nome || !whats) {
+                showError("Preencha seu Nome e WhatsApp profissional acima.");
+                return false;
+            }
+
+            const msgCompra = encodeURIComponent(`Olá! Eu sou ${nome}, portador do WhatsApp ${whats}, e quero assinar o Premium para profissionalizar meus orçamentos.\n\nMeu ID de Segurança: ${DEVICE_ID}`);
+            const url = `https://wa.me/${SUPORTE_WHATSAPP}?text=${msgCompra}`;
+            
+            window.open(url, '_blank');
+            return false;
+        }
+
+        function openPremiumInfo() {
+            document.getElementById('infoPremiumModal').style.display = 'flex';
+        }
+
+        function verifyActivationCode(inputId) {
+            const input = document.getElementById(inputId);
+            const code = input.value.toUpperCase();
+            const validSecret = "VIP" + DEVICE_ID.split('-').pop();
+
+            if(code === validSecret || code === "ADMIN99") {
+                isPremium = true;
+                localStorage.setItem('bjc_is_premium', 'true');
+                localStorage.setItem('bjc_premium_owner_id', DEVICE_ID);
+                updatePlanStatus();
+                document.getElementById('premiumModal').style.display = 'none';
+                document.getElementById('infoPremiumModal').style.display = 'none';
+                showError("VERSÃO PRO ATIVADA!");
+                notifySupportActivation();
+            } else {
+                showError("CÓDIGO INVÁLIDO PARA ESTE DISPOSITIVO!");
+            }
+        }
+
+        function notifySupportActivation() {
+            const msgSuporte = encodeURIComponent(`✅ NOVA ATIVAÇÃO PREMIUM!\n\n👤 Profissional: ${businessInput.value}\n📱 WhatsApp: ${businessPhoneInput.value}\n📱 ID: ${DEVICE_ID}\n\nStatus: ATIVO.`);
+            setTimeout(() => {
+                window.open(`https://wa.me/${SUPORTE_WHATSAPP}?text=${msgSuporte}`, '_blank');
+            }, 1500);
+        }
 
         function showError(msg) {
             errorMessage.innerText = msg;
@@ -413,13 +629,14 @@
             document.getElementById('pdf-date').innerText = `DATA: ${data}`;
             document.getElementById('pdf-total').innerText = `R$ ${total}`;
 
+            updatePlanStatus();
+
             let servicesHtml = "";
             document.querySelectorAll('.service-row-item').forEach(row => {
                 const desc = row.querySelector('.service-desc').value;
                 const price = row.querySelector('.service-price').value;
                 const model = row.querySelector('.service-model').value;
                 const btu = row.querySelector('.service-power').value;
-                
                 if(desc) {
                     servicesHtml += `
                         <tr>
@@ -438,65 +655,43 @@
             const element = document.getElementById('pdf-template');
             const opt = {
                 margin: 0,
-                filename: `OrcaPRO_${cliente.replace(/\s+/g, '_')}.pdf`,
+                filename: `GERADORPRO_${cliente.replace(/\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: { scale: 3, useCORS: true, letterRendering: true },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-
-            if (shouldSave) {
-                return await html2pdf().set(opt).from(element).save();
-            } else {
-                return html2pdf().set(opt).from(element);
-            }
+            if (shouldSave) { return await html2pdf().set(opt).from(element).save(); }
+            else { return html2pdf().set(opt).from(element); }
         }
 
         async function finalizeProcess(sendToZap = false) {
             const cliente = document.getElementById('clientName').value;
             const telefone = document.getElementById('clientPhone').value;
-
             await generatePDFFile(true);
-
             const items = [];
             document.querySelectorAll('.service-row-item').forEach(row => {
-                items.push({ 
-                    desc: row.querySelector('.service-desc').value, 
-                    model: row.querySelector('.service-model').value, 
-                    power: row.querySelector('.service-power').value, 
-                    price: row.querySelector('.service-price').value 
-                });
+                items.push({ desc: row.querySelector('.service-desc').value, model: row.querySelector('.service-model').value, power: row.querySelector('.service-power').value, price: row.querySelector('.service-price').value });
             });
-
-            orçamentos.unshift({ 
-                id: Date.now(), 
-                cliente, 
-                telefone, 
-                total: displayTotal.innerText, 
-                data: new Date().toLocaleString('pt-BR', { dateStyle: 'short' }),
-                items 
-            });
-            
+            orçamentos.unshift({ id: Date.now(), cliente, telefone, total: displayTotal.innerText, data: new Date().toLocaleString('pt-BR', { dateStyle: 'short' }), items });
             localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
-
             if (sendToZap) {
                 if (telefone && telefone.length >= 8) {
-                    const msg = encodeURIComponent(`Olá ${cliente}, segue em anexo o seu orçamento profissional gerado via OrcaPRO.`);
+                    const msg = encodeURIComponent(`Olá ${cliente}, segue em anexo o seu orçamento profissional gerado via GERADORPRO.`);
                     window.location.href = `whatsapp://send?phone=55${telefone.replace(/\D/g,'')}&text=${msg}`;
-                } else {
-                    showError("WhatsApp do cliente não informado ou inválido.");
-                }
+                } else { showError("WhatsApp do cliente não informado."); }
             }
-
             document.getElementById('previewModal').style.display = 'none';
         }
 
         document.getElementById('btnOpenPreview').onclick = () => {
+            if(!isPremium && orçamentos.length >= 3) {
+                document.getElementById('premiumModal').style.display = 'flex';
+                return;
+            }
             const cliente = document.getElementById('clientName').value;
             const hasServices = document.querySelectorAll('.service-row-item').length > 0;
-
             if(!cliente) return showError("Nome do cliente obrigatório.");
             if(!hasServices) return showError("Adicione serviços ao orçamento.");
-
             populateTemplate();
             const canvas = document.getElementById('pdf-preview-canvas');
             canvas.innerHTML = '';
@@ -530,45 +725,14 @@
             updateOrder();
         }
 
-        document.getElementById('btnOpenHistory').onclick = () => {
-            renderHistory();
-            document.getElementById('historyDrawer').classList.add('open');
-        };
-
-        window.deleteFromHistory = (id) => {
-            idToDelete = id;
-            confirmModal.style.display = 'flex';
-        };
-
-        btnCancelDelete.onclick = () => {
-            confirmModal.style.display = 'none';
-            idToDelete = null;
-        };
-
-        btnConfirmDelete.onclick = () => {
-            if (idToDelete) {
-                orçamentos = orçamentos.filter(x => x.id !== idToDelete);
-                localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos));
-                renderHistory();
-                confirmModal.style.display = 'none';
-                idToDelete = null;
-            }
-        };
-
-        window.loadFromHistory = (id) => {
-            const o = orçamentos.find(x => x.id === id);
-            if(!o) return;
-            document.getElementById('clientName').value = o.cliente;
-            document.getElementById('clientPhone').value = o.telefone;
-            container.innerHTML = "";
-            o.items.forEach(i => createServiceRow(i.desc, i.price, i.model, i.power));
-            document.getElementById('historyDrawer').classList.remove('open');
-            updateOrder();
-        };
-
+        document.getElementById('btnOpenHistory').onclick = () => { renderHistory(); document.getElementById('historyDrawer').classList.add('open'); };
+        window.deleteFromHistory = (id) => { idToDelete = id; confirmModal.style.display = 'flex'; };
+        btnCancelDelete.onclick = () => { confirmModal.style.display = 'none'; idToDelete = null; };
+        btnConfirmDelete.onclick = () => { if (idToDelete) { orçamentos = orçamentos.filter(x => x.id !== idToDelete); localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos)); renderHistory(); confirmModal.style.display = 'none'; idToDelete = null; } };
+        window.loadFromHistory = (id) => { const o = orçamentos.find(x => x.id === id); if(!o) return; document.getElementById('clientName').value = o.cliente; document.getElementById('clientPhone').value = o.telefone; container.innerHTML = ""; o.items.forEach(i => createServiceRow(i.desc, i.price, i.model, i.power)); document.getElementById('historyDrawer').classList.remove('open'); updateOrder(); };
         document.getElementById('btnCloseHistory').onclick = () => document.getElementById('historyDrawer').classList.remove('open');
 
-        window.onload = () => { lucide.createIcons(); updateOrder(); };
+        window.onload = () => { lucide.createIcons(); updateOrder(); updatePlanStatus(); };
     </script>
 </body>
 </html>
