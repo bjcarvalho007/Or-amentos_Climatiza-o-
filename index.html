@@ -685,22 +685,35 @@
             const element = document.getElementById('pdf-template');
             const opt = {
                 margin: 0,
-                filename: `GERADORPRO_${cliente.replace(/\s+/g, '_')}.pdf`,
+                filename: `ORC_${cliente.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
                 image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+                html2canvas: { scale: 3, useCORS: true, letterRendering: true, scrollY: 0 },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            if (shouldSave) { return await html2pdf().set(opt).from(element).save(); }
-            else { return html2pdf().set(opt).from(element); }
+            
+            if (shouldSave) { 
+                return await html2pdf().set(opt).from(element).save(); 
+            } else { 
+                return html2pdf().set(opt).from(element); 
+            }
         }
 
         async function finalizeProcess(sendToZap = false) {
             const cliente = document.getElementById('clientName').value;
             const telefone = document.getElementById('clientPhone').value;
+            
+            // Re-popula para garantir que o arquivo gerado está idêntico à prévia
+            populateTemplate();
+            
             await generatePDFFile(true);
             const items = [];
             document.querySelectorAll('.service-row-item').forEach(row => {
-                items.push({ desc: row.querySelector('.service-desc').value, model: row.querySelector('.service-model').value, power: row.querySelector('.service-power').value, price: row.querySelector('.service-price').value });
+                items.push({ 
+                    desc: row.querySelector('.service-desc').value, 
+                    model: row.querySelector('.service-model').value, 
+                    power: row.querySelector('.service-power').value, 
+                    price: row.querySelector('.service-price').value 
+                });
             });
             
             // Incrementa contador global de uso ao salvar um novo
@@ -720,8 +733,6 @@
         }
 
         document.getElementById('btnOpenPreview').onclick = () => {
-            // REGRA: Usuário FREE que já gerou 3 orçamentos (totalUsageCounter) 
-            // não pode mais visualizar novos orçamentos, nem carregar do histórico.
             if(!isPremium && totalUsageCounter >= 3) {
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
@@ -731,13 +742,19 @@
             const hasServices = document.querySelectorAll('.service-row-item').length > 0;
             if(!cliente) return showToast("Nome do cliente obrigatório.", "error");
             if(!hasServices) return showToast("Adicione serviços ao orçamento.", "error");
+            
+            // Sincroniza dados com o template antes de mostrar
             populateTemplate();
+            
             const canvas = document.getElementById('pdf-preview-canvas');
             canvas.innerHTML = '';
+            
+            // Cria um clone visual do template para a prévia
             const clone = document.getElementById('pdf-template').cloneNode(true);
             clone.style.width = '210mm';
             clone.style.boxShadow = 'none';
             canvas.appendChild(clone);
+            
             document.getElementById('previewModal').style.display = 'flex';
         };
 
@@ -770,7 +787,6 @@
         btnConfirmDelete.onclick = () => { if (idToDelete) { orçamentos = orçamentos.filter(x => x.id !== idToDelete); localStorage.setItem('bjc_orcamentos', JSON.stringify(orçamentos)); renderHistory(); confirmModal.style.display = 'none'; idToDelete = null; } };
         
         window.loadFromHistory = (id) => {
-            // Bloqueio também ao tentar abrir do histórico se for free e já tiver usado o limite
             if(!isPremium && totalUsageCounter >= 3) {
                 document.getElementById('historyDrawer').classList.remove('open');
                 document.getElementById('premiumModal').style.display = 'flex';
