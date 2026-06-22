@@ -151,7 +151,7 @@
             </div>
             <div class="space-y-2">
                 <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight">GERADORPRO PREMIUM</h3>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Acesso Vitalício ilimitado</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Acesso Mensal Ilimitado</p>
             </div>
             
             <div class="bg-slate-50 rounded-3xl p-6 text-left space-y-4">
@@ -168,8 +168,8 @@
                     <p class="text-xs font-bold text-slate-600 uppercase">REMOÇÃO DE ANÚNCIOS</p>
                 </div>
                 <div class="pt-2 border-t border-slate-200">
-                    <p class="text-3xl font-black text-slate-800">R$ 19,99</p>
-                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Pagamento Único</p>
+                    <p class="text-3xl font-black text-slate-800 font-mono">R$ 10,99</p>
+                    <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest">Assinatura Mensal (30 Dias)</p>
                 </div>
             </div>
 
@@ -184,18 +184,18 @@
         </div>
     </div>
 
-    <!-- MODAL DE ATIVAÇÃO PREMIUM (BLOQUEIO 3 USOS) -->
+    <!-- MODAL DE ATIVAÇÃO PREMIUM (BLOQUEIO 3 USOS OU MENSAL EXPIRADO) -->
     <div id="premiumModal" class="modal-overlay" style="z-index: 400;">
         <div class="bg-white rounded-[2.5rem] p-8 w-full max-w-xs text-center space-y-6 shadow-2xl">
             <div class="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto">
                 <i data-lucide="crown" class="text-amber-500 w-10 h-10"></i>
             </div>
             <div>
-                <h3 class="text-lg font-black text-slate-800 uppercase tracking-tight">LIMITE ATINGIDO</h3>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Você atingiu o limite gratuito de 3 orçamentos. Torne-se PRO para uso ilimitado.</p>
+                <h3 id="premiumModalTitle" class="text-lg font-black text-slate-800 uppercase tracking-tight">LIMITE ATINGIDO</h3>
+                <p id="premiumModalDesc" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-relaxed">Você atingiu o limite gratuito de 3 orçamentos ou sua assinatura mensal expirou. Torne-se PRO para uso ilimitado.</p>
             </div>
             <div class="space-y-3">
-                <a id="btnBuyPremiumModal" href="#" onclick="return handleBuyRedirect()" target="_blank" class="block w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">ASSINAR POR R$ 19,99</a>
+                <a id="btnBuyPremiumModal" href="#" onclick="return handleBuyRedirect()" target="_blank" class="block w-full py-4 bg-amber-500 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-lg">ASSINAR POR R$ 10,99/mês</a>
                 <div class="pt-4 border-t">
                     <input type="text" id="activationCode" placeholder="CÓDIGO DE ATIVAÇÃO" class="w-full px-4 py-3 rounded-xl border-2 border-slate-100 text-center text-xs font-black uppercase mb-2">
                     <button onclick="verifyActivationCode('activationCode')" class="w-full py-2 bg-slate-800 text-white rounded-xl font-black text-[9px] uppercase">ATIVAR CÓDIGO</button>
@@ -470,15 +470,36 @@
         let isPremium = localStorage.getItem('bjc_is_premium') === 'true';
         let premiumOwnerId = localStorage.getItem('bjc_premium_owner_id');
 
+        // VALIDAÇÃO DE PERÍODO MENSAL (30 dias)
+        if (isPremium) {
+            const activationTime = localStorage.getItem('bjc_activation_date');
+            if (activationTime) {
+                const now = Date.now();
+                const differenceInDays = (now - parseInt(activationTime)) / (1000 * 60 * 60 * 24);
+                
+                // Se passou de 30 dias, reverte a assinatura e limpa as variáveis de ativação
+                if (differenceInDays > 30) {
+                    isPremium = false;
+                    localStorage.removeItem('bjc_is_premium');
+                    localStorage.removeItem('bjc_premium_owner_id');
+                    localStorage.removeItem('bjc_activation_date');
+                }
+            } else {
+                // Caso não tenha data de ativação (retrocompatibilidade), assume o momento atual para evitar bug
+                localStorage.setItem('bjc_activation_date', Date.now().toString());
+            }
+        }
+
         if (isPremium && premiumOwnerId !== DEVICE_ID) {
             isPremium = false;
             localStorage.removeItem('bjc_is_premium');
             localStorage.removeItem('bjc_premium_owner_id');
+            localStorage.removeItem('bjc_activation_date');
         }
 
         let orçamentos = JSON.parse(localStorage.getItem('bjc_orcamentos')) || [];
         
-        // NOVA LÓGICA DE CONTAGEM PERSISTENTE PARA BLOQUEIO
+        // LÓGICA DE CONTAGEM PERSISTENTE PARA BLOQUEIO NO MODO GRÁTIS
         let totalUsageCounter = parseInt(localStorage.getItem('bjc_usage_counter')) || 0;
 
         const modelos = ["Split Hi-Wall", "Split Inverter", "Multi Split", "Piso Teto", "Cassete", "ACJ", "Duto", "Portátil"];
@@ -499,14 +520,20 @@
             const business = businessInput.value || "TÉCNICO RESPONSÁVEL";
             
             if(isPremium) {
-                badge.innerText = "PRO";
+                // Calcula dias restantes
+                const activationTime = parseInt(localStorage.getItem('bjc_activation_date')) || Date.now();
+                const now = Date.now();
+                const daysUsed = (now - activationTime) / (1000 * 60 * 60 * 24);
+                const daysRemaining = Math.max(0, Math.ceil(30 - daysUsed));
+                
+                badge.innerText = `PRO (${daysRemaining}d restante${daysRemaining !== 1 ? 's' : ''})`;
                 badge.className = "badge-pro";
                 watermark.style.display = 'block';
                 watermark.innerText = `GERADO POR: ${business.toUpperCase()}`;
                 watermark.style.color = '#94a3b8';
                 floatingBtn.style.display = 'none';
             } else {
-                badge.innerText = "FREE";
+                badge.innerText = "FREE - 3 Orçamentos";
                 badge.className = "badge-free";
                 watermark.style.display = 'block';
                 watermark.innerText = "GERADO POR GERADORPRO FREE • ADQUIRA A VERSÃO PREMIUM";
@@ -536,7 +563,7 @@
                 return false;
             }
 
-            const msgCompra = encodeURIComponent(`Olá! Eu sou ${nome}, portador do WhatsApp ${whats}, e quero assinar o Premium para profissionalizar meus orçamentos.\n\nMeu ID de Segurança: ${DEVICE_ID}`);
+            const msgCompra = encodeURIComponent(`Olá! Eu sou ${nome}, portador do WhatsApp ${whats}, e quero assinar o Premium Mensal para profissionalizar meus orçamentos.\n\nMeu ID de Segurança: ${DEVICE_ID}`);
             const url = `https://wa.me/${SUPORTE_WHATSAPP}?text=${msgCompra}`;
             
             window.open(url, '_blank');
@@ -583,11 +610,13 @@
                 isPremium = true;
                 localStorage.setItem('bjc_is_premium', 'true');
                 localStorage.setItem('bjc_premium_owner_id', DEVICE_ID);
+                localStorage.setItem('bjc_activation_date', Date.now().toString()); // Salva momento de ativação
+                
                 updatePlanStatus();
                 document.getElementById('premiumModal').style.display = 'none';
                 document.getElementById('infoPremiumModal').style.display = 'none';
                 
-                showToast("VERSÃO PRO ATIVADA COM SUCESSO!", "success");
+                showToast("VERSÃO PRO MENSAL ATIVADA COM SUCESSO!", "success");
                 notifySupportActivation();
             } else {
                 showToast("CÓDIGO INVÁLIDO PARA ESTE DISPOSITIVO!", "error");
@@ -595,7 +624,7 @@
         }
 
         function notifySupportActivation() {
-            const msgSuporte = encodeURIComponent(`✅ NOVA ATIVAÇÃO PREMIUM!\n\n👤 Profissional: ${businessInput.value}\n📱 WhatsApp: ${businessPhoneInput.value}\n📱 ID: ${DEVICE_ID}\n\nStatus: ATIVO.`);
+            const msgSuporte = encodeURIComponent(`✅ NOVA ATIVAÇÃO PREMIUM (MENSAL)!\n\n👤 Profissional: ${businessInput.value}\n📱 WhatsApp: ${businessPhoneInput.value}\n📱 ID: ${DEVICE_ID}\n\nStatus: ATIVO por 30 Dias.`);
             setTimeout(() => {
                 window.open(`https://wa.me/${SUPORTE_WHATSAPP}?text=${msgSuporte}`, '_blank');
             }, 1500);
@@ -734,6 +763,8 @@
 
         document.getElementById('btnOpenPreview').onclick = () => {
             if(!isPremium && totalUsageCounter >= 3) {
+                document.getElementById('premiumModalTitle').innerText = "LIMITE ATINGIDO";
+                document.getElementById('premiumModalDesc').innerText = "Você atingiu o limite gratuito de 3 orçamentos. Torne-se PRO por apenas R$ 10,99/mês para continuar utilizando.";
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
             }
@@ -789,6 +820,8 @@
         window.loadFromHistory = (id) => {
             if(!isPremium && totalUsageCounter >= 3) {
                 document.getElementById('historyDrawer').classList.remove('open');
+                document.getElementById('premiumModalTitle').innerText = "LIMITE ATINGIDO";
+                document.getElementById('premiumModalDesc').innerText = "Você atingiu o limite de orçamentos e não é um usuário PRO ativo.";
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
             }
